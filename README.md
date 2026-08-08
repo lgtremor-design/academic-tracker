@@ -1,6 +1,6 @@
 # Academic Tracker
 
-Academic Tracker is a local student academic management system. It combines subject management, grade tracking, task planning, schedules, analytics, study timers, and local backups in one browser-based interface backed by a small C HTTP server.
+Our final project for C Programming, Academic Tracker is a local student academic management system. It combines subject management, grade tracking, task planning, schedules, analytics, study timers, and local backups in one browser-based interface backed by a small C HTTP server.
 
 ## Purpose
 
