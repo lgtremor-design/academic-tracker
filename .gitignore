@@ -1,0 +1,42 @@
+# Build outputs
+*.exe
+*.o
+*.obj
+*.dll
+*.so
+*.dylib
+*.a
+*.lib
+build/
+dist/
+out/
+
+# Runtime data and local backups
+backend/novi_data.json
+backend/*_data.json
+*.backup.json
+*-backup-*.json
+
+# Secrets and local environment files
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+
+# Editor and OS files
+.vscode/
+.idea/
+*.code-workspace
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs and temporary files
+*.log
+*.tmp
+*.temp
+*.swp
+~$*

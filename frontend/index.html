@@ -1,0 +1,713 @@
+﻿<!DOCTYPE html>
+<!-- This tells the browser this file is a web page. -->
+<html lang="en">
+<head>
+<!-- This lets the page show normal text and symbols correctly. -->
+<meta charset="UTF-8"/>
+<!-- This makes the page fit phones, tablets, and laptops. -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<!-- This is the name shown on the browser tab. -->
+<title>Academic Tracker</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<!-- This loads the page design from style.css. -->
+<link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+
+
+<!-- Sidebar area: logo, menu buttons, and backend status. -->
+<header>
+  <!-- Brand logo area. -->
+  <div class="logo-wrap">
+    <!-- App logo mark. -->
+      <div class="logo-icon">
+      AT
+    </div>
+    <div>
+      <!-- Short app name. -->
+      <div class="logo-name">Academic Tracker</div>
+      <!-- Full meaning of the app name. -->
+      <div class="logo-sub">Student Planner</div>
+    </div>
+  </div>
+
+  <!-- Menu buttons for switching between app pages. -->
+  <nav>
+    <a class="nav-link active" data-tab="dashboard"  onclick="showTab('dashboard')">Dashboard</a>
+    <a class="nav-link"        data-tab="subjects"   onclick="showTab('subjects')">Subjects</a>
+    <a class="nav-link"        data-tab="tasks"      onclick="showTab('tasks')">Tasks</a>
+    <a class="nav-link"        data-tab="calendar"   onclick="showTab('calendar')">Calendar</a>
+    <a class="nav-link"        data-tab="schedule"   onclick="showTab('schedule')">Schedule</a>
+    <a class="nav-link"        data-tab="folders"    onclick="showTab('folders')">Folders</a>
+    <a class="nav-link"        data-tab="studytimer" onclick="showTab('studytimer')">Study Timer</a>
+    <a class="nav-link"        data-tab="analytics"  onclick="showTab('analytics')">Analytics</a>
+  </nav>
+
+  <!-- Shows if the backend is online or offline. -->
+  <div class="header-status">
+    <span id="serverStatus" class="status-dot offline" title="Backend status"></span>
+    <span id="serverLabel" style="font-size:.75rem;color:rgba(255,255,255,.4);">Connecting...</span>
+  </div>
+</header>
+
+
+<!-- Small popup message shown after saving, deleting, or errors. -->
+<div id="toast" class="toast hide"></div>
+<div id="animeThemeBackdrop" class="anime-theme-backdrop" aria-hidden="true"></div>
+<div id="imageViewer" class="image-viewer hide" onclick="closeImageViewer(event)" aria-hidden="true">
+  <button class="image-viewer-close" type="button" onclick="closeImageViewer()">x</button>
+  <img id="imageViewerImg" src="" alt="Full size theme artwork"/>
+</div>
+
+<!-- Popup window used when clicking dates on the calendar. -->
+<div id="deadlineModal" class="modal-backdrop hide" onclick="closeDeadlineModal(event)">
+  <div class="deadline-modal" role="dialog" aria-modal="true" aria-labelledby="deadlineModalTitle">
+    <div class="modal-head">
+      <div>
+        <div class="modal-kicker">Calendar Deadlines</div>
+        <h2 id="deadlineModalTitle">Selected date</h2>
+      </div>
+      <button class="modal-close" type="button" onclick="closeDeadlineModal()">x</button>
+    </div>
+    <div id="deadlineModalBody" class="deadline-modal-body"></div>
+  </div>
+</div>
+
+<!-- Top greeting area with the student's name. -->
+<div class="portal-topbar">
+  <div>
+    <div class="hello" id="studentGreeting">Hello, student</div>
+    <div class="today" id="themeTitle">Jujutsu Kaisen Dashboard</div>
+  </div>
+  <div class="topbar-actions">
+    <div class="theme-switcher">
+      <label for="themeSelect">Design</label>
+      <select id="themeSelect" onchange="setDesignTheme(this.value)" aria-label="Choose dashboard design">
+        <option value="standard">Clean Light</option>
+        <option value="demonslayer">Demon Slayer</option>
+        <option value="jujutsu">Jujutsu Kaisen</option>
+        <option value="royalblue">Royal Blue (Luxury Mode)</option>
+      </select>
+    </div>
+    <div class="profile-pill">
+      <div id="studentAvatar" class="avatar">S</div>
+      <div>
+        <strong>Academic Tracker</strong>
+        <!-- The user can type their name here. -->
+        <input id="studentNameInput" class="student-name-input" type="text" value="" placeholder="Your name" aria-label="Student name"/>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- Dashboard page: this is the first page shown. -->
+<div id="tab-dashboard" class="tab-content active">
+  <div class="dashboard-shell">
+    <div class="welcome-panel">
+      <div class="welcome-copy">
+        <div class="dash-date" id="dashToday">Today</div>
+        <h1 id="welcomeTitle">Welcome back, student!</h1>
+        <p id="themeSubtitle"><em>Daijoubo desho datte kimi yowaimo</em></p>
+      </div>
+      <div class="welcome-art standard-welcome-art" aria-hidden="true">
+        <div class="cap">A+</div>
+        <div class="book">100%</div>
+      </div>
+      <div class="anime-hero-card">
+        <img id="themeCharacterImage" src="" alt="Theme character" loading="eager" decoding="async"/>
+        <div class="anime-hero-label">
+          <span>Featured</span>
+          <strong id="themeCharacterName">Luxury Mode</strong>
+          <em id="themeCharacterSubtitle">Royal blue command center</em>
+        </div>
+      </div>
+      <div id="themeThumbs" class="anime-thumb-strip" aria-label="Theme visuals"></div>
+    </div>
+    <div class="finance-grid">
+      <div class="finance-card">
+        <div class="finance-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path d="M4 19.5V5.75A2.75 2.75 0 0 1 6.75 3H20v15H6.75A2.75 2.75 0 0 0 4 20.75"/><path d="M8 7h8"/></svg>
+        </div>
+        <div class="hstat-val" id="dash-subjects">0</div>
+        <div class="hstat-lbl">Enrolled Subjects</div>
+      </div>
+      <div class="finance-card featured">
+        <div class="finance-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path d="M9 6h11"/><path d="M9 12h11"/><path d="M9 18h11"/><path d="m4 6 1 1 2-2"/><path d="m4 12 1 1 2-2"/><path d="m4 18 1 1 2-2"/></svg>
+        </div>
+        <div class="hstat-val" id="dash-tasks">0</div>
+        <div class="hstat-lbl">Total Tasks</div>
+      </div>
+      <div class="finance-card">
+        <div class="finance-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path d="M12 3 3 8l9 5 9-5-9-5Z"/><path d="M7 10.5V15c0 1.5 2.2 3 5 3s5-1.5 5-3v-4.5"/><path d="M21 8v7"/></svg>
+        </div>
+        <div class="hstat-val" id="dash-avg">-</div>
+        <div class="hstat-lbl">Current GWA</div>
+      </div>
+      <div class="finance-card">
+        <div class="finance-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v6"/><path d="M12 17h.01"/></svg>
+        </div>
+        <div class="hstat-val" id="dash-urgent">0</div>
+        <div class="hstat-lbl">Urgent</div>
+      </div>
+    </div>
+
+    <div class="dashboard-main-grid">
+      <div class="dashboard-left">
+        <div class="section-row">
+          <div class="section-title">Progress Overview</div>
+          <span id="dashProgressText" class="section-action">0% complete</span>
+        </div>
+        <div class="progress-panel">
+          <div class="progress-ring" id="dashProgressRing" style="--progress:0%;">
+            <span id="dashProgressValue">0%</span>
+          </div>
+          <div class="chart-card">
+            <div class="mini-title">Task Status</div>
+            <div id="dashboardBarChart" class="bar-chart"></div>
+          </div>
+          <div class="chart-card">
+            <div class="mini-title">Current Standing</div>
+            <div id="dashboardGradeChart" class="standing-list"></div>
+          </div>
+        </div>
+
+        <div class="dashboard-action-row">
+          <div class="dashboard-deadline-panel">
+            <div class="section-row">
+              <div class="section-title">Upcoming Deadlines</div>
+              <span class="section-action">Nearest tasks</span>
+            </div>
+            <div id="upcomingTasks" class="deadline-strip dashboard-deadlines">
+              <div class="empty-state">No tasks yet - add some in the Tasks tab.</div>
+            </div>
+          </div>
+
+          <div class="card todo-card">
+            <div class="card-head">
+              <div class="card-icon ci-gray">TODO</div>
+              <div>
+                <div class="card-title">To-Do List</div>
+                <div class="card-sub">Quick reminders for today</div>
+              </div>
+            </div>
+            <div class="todo-input-row">
+              <input id="todoInput" type="text" placeholder="Add a quick to-do"/>
+              <button class="btn btn-primary btn-sm" onclick="addTodoItem()">Add</button>
+            </div>
+            <div id="todoList" class="todo-list"></div>
+          </div>
+        </div>
+
+        <div class="section-row">
+          <div class="section-title">Subject Overview</div>
+          <span class="section-action">Current grades</span>
+        </div>
+        <div id="subjectCards" class="subject-card-grid compact-subjects">
+          <div class="empty-state">No subjects yet - add some in the Subjects tab.</div>
+        </div>
+      </div>
+
+      <aside class="dashboard-right">
+        <div class="section-row">
+          <div class="section-title">Calendar</div>
+          <span class="section-action">This month</span>
+        </div>
+        <div id="dashboardCalendar" class="calendar-grid dashboard-calendar"></div>
+
+        <div class="section-row">
+          <div class="section-title">Absence Tracker</div>
+          <span class="section-action">Per subject</span>
+        </div>
+        <div class="absence-note">Default cap is 6 absences per subject. Check your school's policy if it uses a different limit.</div>
+        <div id="dashboardAbsences" class="absence-list"></div>
+
+        <div class="card data-card">
+          <div class="card-head">
+            <div class="card-icon ci-blue">DATA</div>
+            <div>
+              <div class="card-title">Data Backup</div>
+              <div class="card-sub">Export, import and deadline reminders</div>
+            </div>
+          </div>
+          <div class="backup-actions">
+            <button class="btn btn-primary btn-sm" onclick="exportBackup()">Export JSON</button>
+            <button class="btn btn-ghost btn-sm" onclick="document.getElementById('backupImportFile').click()">Import JSON</button>
+            <button class="btn btn-ghost btn-sm" onclick="enableDeadlineReminders()">Enable Reminders</button>
+            <input id="backupImportFile" class="hide" type="file" accept="application/json,.json" onchange="importBackupFile(this.files[0]); this.value=''"/>
+          </div>
+          <div id="reminderStatus" class="hint">Reminders are off until you enable browser notifications.</div>
+        </div>
+      </aside>
+    </div>
+  </div>
+</div>
+
+
+<div id="tab-subjects" class="tab-content">
+  <div class="page-header">
+    <div>
+      <div class="page-title">Subject Management</div>
+      <div class="page-sub">Add subjects, set grading criteria and track scores.</div>
+    </div>
+  </div>
+
+  <div class="two-col">
+
+    
+    <div class="col-form">
+
+      
+      <div class="card">
+        <div class="card-head">
+          <div class="card-icon ci-blue">SUB</div>
+          <div>
+            <div class="card-title">Add Subject</div>
+            <div class="card-sub">Create a new class record</div>
+          </div>
+        </div>
+        <div class="field">
+          <label>Subject Name *</label>
+          <input id="newSubjectName" type="text" placeholder="e.g. Mathematics 101"/>
+        </div>
+        <div class="field">
+          <label>Notes (optional)</label>
+          <input id="newSubjectNotes" type="text" placeholder="e.g. Prof. Santos - MWF 9-10:30"/>
+        </div>
+        <div class="field">
+          <label>Units *</label>
+          <input id="newSubjectUnits" type="number" min="0.5" step="0.5" value="3"/>
+        </div>
+        <button class="btn btn-primary" onclick="addSubject()">
+          <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"/></svg>
+          Add Subject
+        </button>
+      </div>
+
+      
+      <div class="card" style="margin-top:16px;">
+        <div class="card-head">
+          <div class="card-icon ci-purple">SET</div>
+          <div>
+            <div class="card-title">Grading Criteria &amp; Scores</div>
+            <div class="card-sub">Weights, scores and study goals</div>
+          </div>
+        </div>
+        <div class="field">
+          <label>Select Subject</label>
+          <select id="criteriaSubject" onchange="loadCriteriaForm()"></select>
+        </div>
+        <div id="criteriaRows"></div>
+        <div class="weight-row">
+          <button class="btn btn-ghost btn-sm" onclick="addCriteriaRow()" type="button">Add Component</button>
+          <button class="btn btn-ghost btn-sm" onclick="loadCMSC21Template()" type="button">CMSC 21 Template</button>
+        </div>
+        <div class="weight-row">
+          <div class="field">
+            <label>Target Study Hrs/Week</label>
+            <input id="studyHours" type="number" placeholder="e.g. 8" min="0"/>
+          </div>
+          <div class="field">
+            <label>Study Days/Week</label>
+            <input id="studyFreq" type="number" placeholder="0-7" min="0" max="7"/>
+          </div>
+          <div class="field">
+            <label>Target Grade</label>
+            <input id="targetGrade" type="number" placeholder="e.g. 90" min="0" max="100"/>
+          </div>
+        </div>
+        <div id="weightSumHint" class="hint"></div>
+        <button class="btn btn-primary" onclick="saveCriteria()">
+          Save Criteria &amp; Scores
+        </button>
+      </div>
+
+      <div class="card" style="margin-top:16px;">
+        <div class="card-head">
+          <div class="card-icon ci-amber">WHAT</div>
+          <div>
+            <div class="card-title">Grade What-If</div>
+            <div class="card-sub">Calculate the score needed for a target grade</div>
+          </div>
+        </div>
+        <div class="field">
+          <label>Subject</label>
+          <select id="whatIfSubject" onchange="loadWhatIfForm()"></select>
+        </div>
+        <div class="weight-row">
+          <div class="field">
+            <label>Target Grade %</label>
+            <input id="whatIfTarget" type="number" min="0" max="100" value="90" oninput="calculateWhatIf()"/>
+          </div>
+          <div class="field">
+            <label>Component to Solve</label>
+            <select id="whatIfComponent" onchange="calculateWhatIf()"></select>
+          </div>
+        </div>
+        <div id="whatIfResult" class="what-if-result">Select a subject to start.</div>
+      </div>
+    </div>
+
+    
+    <div class="col-table">
+      <div class="card full-height">
+        <div class="card-head">
+          <div class="card-icon ci-gray">LIST</div>
+          <div>
+            <div class="card-title">Subject Records</div>
+            <div class="card-sub">Live subject standings</div>
+          </div>
+          <button class="btn btn-ghost btn-sm" onclick="loadSubjects()" style="margin-left:auto;">Refresh</button>
+        </div>
+        <div class="tbl-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Subject</th><th>Criteria</th><th>Grade</th><th>Equivalent</th>
+                <th>Target</th><th>Units</th><th>Study Progress</th><th>Status</th><th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="subjectTableBody">
+              <tr><td colspan="9" class="empty-row">No subjects yet.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+<div id="tab-tasks" class="tab-content">
+  <div class="page-header">
+    <div>
+      <div class="page-title">Tasks &amp; Deadlines</div>
+      <div class="page-sub">Sorted by nearest deadline - mirrors <code>sortTasksByDeadline()</code> in task.c</div>
+    </div>
+  </div>
+
+  <div class="two-col">
+    
+    <div class="col-form">
+      <div class="card">
+        <div class="card-head">
+          <div class="card-icon ci-amber">TASK</div>
+          <div>
+            <div class="card-title">Add Task</div>
+            <div class="card-sub">Create a deadline or assignment</div>
+          </div>
+        </div>
+        <div class="weight-row">
+          <div class="field">
+            <label>Subject</label>
+            <select id="taskSubject"></select>
+          </div>
+          <div class="field">
+            <label>Type</label>
+            <select id="taskType">
+              <option value="Individual">Individual</option>
+              <option value="Group">Group</option>
+            </select>
+          </div>
+        </div>
+        <div class="field">
+          <label>Description *</label>
+          <input id="taskDesc" type="text" placeholder="e.g. Chapter 3 problem set"/>
+        </div>
+        <div class="weight-row">
+          <div class="field">
+            <label>Status</label>
+            <select id="taskStatus">
+              <option value="Not Started">Not Started</option>
+              <option value="In Progress">In Progress</option>
+              <option value="Done">Done</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Link (optional)</label>
+            <input id="taskLink" type="text" placeholder="https://..."/>
+          </div>
+        </div>
+        <div class="weight-row">
+          <div class="field">
+            <label>Deadline Date *</label>
+            <input id="taskDate" type="date"/>
+          </div>
+          <div class="field">
+            <label>Time</label>
+            <input id="taskTime" type="time" value="23:59"/>
+          </div>
+        </div>
+        <button class="btn btn-primary" onclick="addTask()">
+          <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"/></svg>
+          Add Task
+        </button>
+      </div>
+    </div>
+
+    
+    <div class="col-table">
+      <div class="card full-height">
+        <div class="card-head">
+          <div class="card-icon ci-gray">LIST</div>
+          <div>
+            <div class="card-title">Task List</div>
+            <div class="card-sub">Filter, edit and sort deadlines</div>
+          </div>
+          <button class="btn btn-ghost btn-sm" onclick="loadTasks()" style="margin-left:auto;">Refresh</button>
+        </div>
+        <div class="task-toolbar">
+          <select id="taskFilterSubject" onchange="renderTasks()">
+            <option value="">All subjects</option>
+          </select>
+          <select id="taskFilterStatus" onchange="renderTasks()">
+            <option value="">All statuses</option>
+            <option value="Not Started">Not Started</option>
+            <option value="In Progress">In Progress</option>
+            <option value="Done">Done</option>
+          </select>
+          <select id="taskSort" onchange="renderTasks(); renderUpcomingTasks();">
+            <option value="deadline">Sort by deadline</option>
+            <option value="priority">Sort by urgency</option>
+            <option value="subject">Sort by subject</option>
+            <option value="status">Sort by status</option>
+          </select>
+        </div>
+        <div class="tbl-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>#</th><th>Subject</th><th>Description</th><th>Type</th>
+                <th>Status</th><th>Deadline</th><th>Days</th><th>Priority</th><th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="taskTableBody">
+              <tr><td colspan="9" class="empty-row">No tasks yet.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="card" style="margin-top:16px;">
+        <div class="card-head">
+          <div class="card-icon ci-gray">DONE</div>
+          <div>
+            <div class="card-title">Completed Tasks</div>
+            <div class="card-sub">Done tasks are kept here, not mixed with overdue work</div>
+          </div>
+        </div>
+        <div class="tbl-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>#</th><th>Subject</th><th>Description</th><th>Completed</th><th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="doneTaskTableBody">
+              <tr><td colspan="5" class="empty-row">No completed tasks yet.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="tab-calendar" class="tab-content">
+  <div class="page-header">
+    <div>
+      <div class="page-title">Calendar</div>
+      <div class="page-sub">Browse deadlines across months.</div>
+    </div>
+  </div>
+  <div id="calendarGrid" class="calendar-grid"></div>
+</div>
+
+<div id="tab-schedule" class="tab-content">
+  <div class="page-header">
+    <div>
+      <div class="page-title">Class Schedule</div>
+      <div class="page-sub">Add and update your weekly class schedule here. Extra schedule slots are saved in this browser.</div>
+    </div>
+  </div>
+  <div class="two-col">
+    <div class="col-form">
+      <div class="card">
+        <div class="card-head">
+          <div class="card-icon ci-purple">SET</div>
+          <div>
+            <div class="card-title">Add Schedule</div>
+            <div class="card-sub">Saved per subject</div>
+          </div>
+        </div>
+        <div class="field">
+          <label>Schedule Type</label>
+          <select id="scheduleKind" onchange="loadScheduleForm()">
+            <option value="subject">Subject / Class</option>
+            <option value="custom">Personal or Other Task</option>
+          </select>
+        </div>
+        <div class="field schedule-subject-field">
+          <label>Subject</label>
+          <select id="scheduleSubject" onchange="loadScheduleForm()"></select>
+        </div>
+        <div class="field schedule-custom-field hide">
+          <label>Title</label>
+          <input id="scheduleCustomTitle" type="text" placeholder="e.g. Lunch, Wellness Break, Performance Task"/>
+        </div>
+        <div class="field">
+          <label>Day</label>
+          <select id="scheduleDay">
+            <option value="">No schedule</option>
+            <option value="Monday">Monday</option>
+            <option value="Tuesday">Tuesday</option>
+            <option value="Wednesday">Wednesday</option>
+            <option value="Thursday">Thursday</option>
+            <option value="Friday">Friday</option>
+            <option value="Saturday">Saturday</option>
+            <option value="Sunday">Sunday</option>
+          </select>
+        </div>
+        <div class="weight-row">
+          <div class="field">
+            <label>Start</label>
+            <input id="scheduleStart" type="time" value="08:00"/>
+          </div>
+          <div class="field">
+            <label>End</label>
+            <input id="scheduleEnd" type="time" value="09:00"/>
+          </div>
+        </div>
+        <div class="field">
+          <label>Room</label>
+          <input id="scheduleLocation" type="text" placeholder="e.g. ICS Lab 1"/>
+        </div>
+        <p class="hint" style="margin-bottom:10px;"><strong>Tip:</strong> To add the same class on multiple days, choose one day and save it. Then choose the next day and save again. Extra class days and personal blocks are saved on this browser.</p>
+        <button class="btn btn-primary" onclick="saveScheduleFromTab()">Add Schedule Slot</button>
+      </div>
+      <div id="scheduleSummary" class="schedule-summary card"></div>
+    </div>
+    <div class="col-table">
+      <div id="scheduleBoard" class="schedule-board"></div>
+    </div>
+  </div>
+</div>
+
+<div id="tab-folders" class="tab-content">
+  <div class="page-header">
+    <div>
+      <div class="page-title">Course Folders</div>
+      <div class="page-sub">Manage notes and subject-specific tasks. Attachments are saved in this browser.</div>
+    </div>
+  </div>
+  <div id="subjectFolders" class="folder-grid"></div>
+</div>
+
+
+<div id="tab-studytimer" class="tab-content">
+  <div class="page-header">
+    <div>
+      <div class="page-title">Study Timer</div>
+      <div class="page-sub">Track how many hours you study per subject. Select a subject, start the timer, and stop when you're done.</div>
+    </div>
+  </div>
+
+  <!-- Subject selector -->
+  <div class="st-selector-row">
+    <label class="st-label" for="timerSubjectSelect">Select Subject</label>
+    <select id="timerSubjectSelect" class="st-select" onchange="onTimerSubjectChange()">
+      <option value="">— choose a subject —</option>
+    </select>
+    <label class="st-label" for="timerModeSelect">Technique</label>
+    <select id="timerModeSelect" class="st-select" onchange="onTimerModeChange()">
+      <option value="free">Free study</option>
+      <option value="pomodoro">Pomodoro 25/5</option>
+      <option value="short">Short review 15 min</option>
+      <option value="deep">Deep work 50 min</option>
+    </select>
+  </div>
+
+  <!-- Timer card -->
+  <div class="st-card" id="timerCard">
+    <div class="st-subject-name" id="timerSubjectName">No subject selected</div>
+    <div class="st-clock" id="timerDisplay">00:00:00</div>
+    <div class="st-mode-hint" id="timerModeHint">Free study counts up until you stop it.</div>
+    <div class="st-pomodoro-count" id="timerPomodoroCount">Pomodoros completed: 0</div>
+    <div class="st-total-row">
+      <span class="st-total-label">Study progress for this subject:</span>
+      <span class="st-total-val" id="timerTotalHours">0.00 hrs</span>
+    </div>
+    <div class="st-btn-row">
+      <button class="st-btn st-btn-start" id="timerStartBtn" onclick="startStudyTimer()" disabled>Start</button>
+      <button class="st-btn st-btn-stop hide" id="timerStopBtn" onclick="stopStudyTimer()">Stop &amp; Save</button>
+    </div>
+    <div class="st-session-log" id="timerSessionLog"></div>
+  </div>
+
+  <!-- All subjects hours summary -->
+  <div class="st-summary-title">All Subjects — Cumulative Study Hours</div>
+  <div id="timerSummaryGrid" class="st-summary-grid"></div>
+</div>
+
+
+<div id="tab-analytics" class="tab-content">
+  <div class="page-header">
+    <div>
+      <div class="page-title">Performance Analytics</div>
+      <div class="page-sub">Automatically loads performance, deadlines and trends.</div>
+    </div>
+    <button class="btn btn-primary" onclick="loadAnalytics()">
+      Refresh Analytics
+    </button>
+  </div>
+
+  
+  <div id="analyticsSummary" class="analytics-summary"></div>
+
+  <div class="analytics-chart-panel">
+    <div class="chart-card">
+      <div class="mini-title">Task Status Graph</div>
+      <div id="analyticsTaskChart" class="bar-chart"></div>
+    </div>
+    <div class="chart-card">
+      <div class="mini-title">Performance Trends</div>
+      <div id="analyticsGradeBars" class="grade-chart analytics-grade-chart"></div>
+    </div>
+  </div>
+
+  
+  <div id="analyticsCards" class="analytics-grid">
+    <div class="empty-state" style="grid-column:1/-1;">Analytics load automatically when this tab opens.</div>
+  </div>
+
+  
+  <div class="section-title" style="margin-top:32px;">Task Priorities</div>
+  <div class="card" style="margin-top:12px;">
+    <div class="tbl-wrap">
+      <table>
+        <thead>
+          <tr><th>#</th><th>Task</th><th>Priority</th><th>Days Left</th></tr>
+        </thead>
+        <tbody id="priorityTableBody">
+          <tr><td colspan="4" class="empty-row">Analytics load automatically when this tab opens.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script src="js/core.js"></script>
+<script src="js/subjects.js"></script>
+<script src="js/tasks.js"></script>
+<script src="js/calendar-schedule-folders.js"></script>
+<script src="js/analytics-dashboard.js"></script>
+<script src="js/views.js"></script>
+<script src="js/data-tools.js"></script>
+<script src="js/main.js"></script>
+<script src="js/study-timer.js"></script>
+</body>
+</html>
+
