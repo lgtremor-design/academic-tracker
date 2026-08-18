@@ -31,7 +31,6 @@ body[data-theme="standard"] .calendar-grid,
 body[data-theme="standard"] .deadline-card,
 body[data-theme="standard"] .subject-card,
 body[data-theme="standard"] .schedule-day,
-body[data-theme="standard"] .folder-card,
 body[data-theme="standard"] .as-card,
 body[data-theme="standard"] .an-card,
 body[data-theme="standard"] .profile-pill,
@@ -75,8 +74,7 @@ body[data-theme="standard"] .nav-link[data-tab="studytimer"] {
 }
 
 body[data-theme="standard"] .nav-link[data-tab="tasks"],
-body[data-theme="standard"] .nav-link[data-tab="schedule"],
-body[data-theme="standard"] .nav-link[data-tab="folders"] {
+body[data-theme="standard"] .nav-link[data-tab="schedule"] {
   --nav-color: var(--teal);
   --nav-color-2: #14b8a6;
 }
@@ -152,8 +150,7 @@ body[data-theme="standard"] .nav-link[data-tab="studytimer"] {
 }
 
 body[data-theme="standard"] .nav-link[data-tab="tasks"],
-body[data-theme="standard"] .nav-link[data-tab="schedule"],
-body[data-theme="standard"] .nav-link[data-tab="folders"] {
+body[data-theme="standard"] .nav-link[data-tab="schedule"] {
   --nav-color: color-mix(in srgb, var(--teal) 72%, var(--charcoal) 28%);
   --nav-color-2: var(--teal);
 }

@@ -317,7 +317,6 @@ async function saveTaskEdit(id) {
     renderUpcomingTasks();
     renderCalendar();
     updateDashboard();
-    renderSubjectFolders();
     showToast("Task saved");
   } catch (err) {
     showToast(err.message, "err");
@@ -516,67 +515,4 @@ async function clearPrimarySchedule(subjectName) {
   });
   if (saved) showToast("Schedule slot removed");
 }
-
-function renderSubjectFolders() {
-  const container = $("subjectFolders");
-  if (!container) return;
-
-  const visibleSubjects = subjects.filter(subject => matchesSubject(subject));
-  if (!subjects.length) {
-    container.innerHTML = `<div class="empty-state">No subject folders yet.</div>`;
-    return;
-  }
-
-  if (!visibleSubjects.length) {
-    container.innerHTML = `<div class="empty-state">No folders match your search.</div>`;
-    return;
-  }
-
-  container.innerHTML = visibleSubjects.map((subject) => {
-    const index = subjects.indexOf(subject);
-    const safeId = cssSafe(subject.name);
-    const related = subjectTasks(subject.name).filter(task => matchesTask(task));
-    const trend = trendForSubject(subject);
-    const attachments = getNoteFiles(subject.name);
-
-    const attachList = attachments.length
-      ? `<div class="note-attachments">
-          ${attachments.map(f => `
-            <div class="note-attach-item">
-              <span class="note-attach-name" onclick="openNoteFile(${JSON.stringify(subject.name)},${JSON.stringify(f.name)})" title="Open ${escapeAttr(f.name)}">ðŸ“„ ${escapeHtml(f.name)}</span>
-              <button class="note-attach-remove" onclick="removeNoteFile(${JSON.stringify(subject.name)},${JSON.stringify(f.name)})" title="Remove">x</button>
-            </div>`).join("")}
-        </div>`
-      : "";
-
-    return `
-      <div class="folder-card">
-        <div class="folder-head">
-          <div class="folder-title">
-            <h3 title="${escapeAttr(subject.name)}">${escapeHtml(subject.name)}</h3>
-            <span>${related.length} linked deadline${related.length === 1 ? "" : "s"}</span>
-          </div>
-          ${badge(trend.label, trend.color)}
-        </div>
-
-        <div class="folder-grid-inner">
-          <div class="field">
-            <label>Notes</label>
-            <textarea id="folderNotes-${safeId}" rows="7">${escapeHtml(subject.notes || "")}</textarea>
-            ${attachList}
-            <div class="note-attach-actions">
-              <button class="btn btn-sm" onclick="openNoteFilePickerForIndex(${index})" title="Attach a PDF or image">ðŸ“Ž Attach File</button>
-            </div>
-          </div>
-          <div class="folder-tasks">
-            ${related.length ? related.map(task => `<span>${escapeHtml(task.description)} - ${formatDeadline(task)} ${taskLinkMarkup(task)}</span>`).join("") : `<span>No tasks linked to this subject.</span>`}
-          </div>
-        </div>
-
-        <button class="btn btn-primary btn-sm" onclick="saveFolderNotesByIndex(${index})">Save Notes</button>
-      </div>
-    `;
-  }).join("");
-}
-
 

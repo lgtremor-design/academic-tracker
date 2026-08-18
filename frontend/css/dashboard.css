@@ -1,4 +1,11 @@
 /* ── Tabs / pages ───────────────────────────────────── */
+.subject-notes-list { display: grid; gap: 12px; }
+.subject-note-card { display: grid; gap: 10px; padding: 14px; border: 1px solid var(--border); border-radius: var(--r-md); background: var(--surface2); }
+.subject-note-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+.subject-note-head h3 { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text); font-size: .92rem; }
+.subject-note-head span { color: var(--text3); font-size: .72rem; white-space: nowrap; }
+.subject-note-card .field { margin: 0; }
+
 .tab-content {
   display: none;
   margin-left: 242px;

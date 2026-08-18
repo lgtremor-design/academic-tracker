@@ -48,7 +48,6 @@
     <a class="nav-link"        data-tab="tasks"      onclick="showTab('tasks')">Tasks</a>
     <a class="nav-link"        data-tab="calendar"   onclick="showTab('calendar')">Calendar</a>
     <a class="nav-link"        data-tab="schedule"   onclick="showTab('schedule')">Schedule</a>
-    <a class="nav-link"        data-tab="folders"    onclick="showTab('folders')">Folders</a>
     <a class="nav-link"        data-tab="studytimer" onclick="showTab('studytimer')">Study Timer</a>
     <a class="nav-link"        data-tab="analytics"  onclick="showTab('analytics')">Analytics</a>
   </nav>
@@ -396,6 +395,16 @@
           </table>
         </div>
       </div>
+      <div class="card" style="margin-top:16px;">
+        <div class="card-head">
+          <div class="card-icon ci-green">NOTES</div>
+          <div>
+            <div class="card-title">Subject Notes &amp; Files</div>
+            <div class="card-sub">Keep notes and browser-local attachments with each subject.</div>
+          </div>
+        </div>
+        <div id="subjectNotesList" class="subject-notes-list"></div>
+      </div>
     </div>
 
   </div>
@@ -662,17 +671,6 @@
     </div>
   </div>
 </div>
-
-<div id="tab-folders" class="tab-content">
-  <div class="page-header">
-    <div>
-      <div class="page-title">Course Folders</div>
-      <div class="page-sub">Manage notes and subject-specific tasks. Attachments are saved in this browser.</div>
-    </div>
-  </div>
-  <div id="subjectFolders" class="folder-grid"></div>
-</div>
-
 
 <!-- ================= STUDY TIMER TAB ================= -->
 <div id="tab-studytimer" class="tab-content">

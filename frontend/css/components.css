@@ -10,7 +10,6 @@
 .card:hover, .as-card:hover, .an-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); border-color: var(--border2); }
 .finance-card:hover,
 .deadline-card:hover,
-.folder-card:hover,
 .anime-thumb:hover,
 .profile-pill:hover,
 .theme-switcher:hover {

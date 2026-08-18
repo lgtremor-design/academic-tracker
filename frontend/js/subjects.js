@@ -9,7 +9,6 @@ async function loadSubjects() {
     updateSubjectSelects();
     updateDashboard();
     renderSchedule();
-    renderSubjectFolders();
   } catch (err) {
     console.error(err);
     showToast("Unable to load subjects", "err");
@@ -404,6 +403,55 @@ function updateSubjectSelects() {
 function renderSubjects() {
   renderSubjectTable();
   renderSubjectCards();
+  renderSubjectNotes();
+}
+
+function renderSubjectNotes() {
+  const container = $("subjectNotesList");
+  if (!container) return;
+
+  if (!subjects.length) {
+    container.innerHTML = `<div class="empty-state">No subjects yet.</div>`;
+    return;
+  }
+
+  const visibleSubjects = subjects.filter(subject => matchesSubject(subject));
+  if (!visibleSubjects.length) {
+    container.innerHTML = `<div class="empty-state">No subjects match your search.</div>`;
+    return;
+  }
+
+  container.innerHTML = visibleSubjects.map(subject => {
+    const index = subjects.indexOf(subject);
+    const safeId = cssSafe(subject.name);
+    const attachments = getNoteFiles(subject.name);
+    const attachList = attachments.length
+      ? `<div class="note-attachments">
+          ${attachments.map(file => `
+            <div class="note-attach-item">
+              <span class="note-attach-name" onclick="openNoteFile(${JSON.stringify(subject.name)},${JSON.stringify(file.name)})" title="Open ${escapeAttr(file.name)}">File: ${escapeHtml(file.name)}</span>
+              <button class="note-attach-remove" onclick="removeNoteFile(${JSON.stringify(subject.name)},${JSON.stringify(file.name)})" title="Remove">x</button>
+            </div>`).join("")}
+        </div>`
+      : `<div class="hint">No files attached.</div>`;
+
+    return `
+      <article class="subject-note-card">
+        <div class="subject-note-head">
+          <h3>${escapeHtml(subject.name)}</h3>
+          <span>${attachments.length} file${attachments.length === 1 ? "" : "s"}</span>
+        </div>
+        <div class="field">
+          <label for="subjectNotes-${safeId}">Notes</label>
+          <textarea id="subjectNotes-${safeId}" rows="5">${escapeHtml(subject.notes || "")}</textarea>
+          ${attachList}
+          <div class="note-attach-actions">
+            <button class="btn btn-sm" onclick="openNoteFilePickerForIndex(${index})" title="Attach a PDF or image">Attach File</button>
+          </div>
+        </div>
+        <button class="btn btn-primary btn-sm" onclick="saveSubjectNotesByIndex(${index})">Save Notes</button>
+      </article>`;
+  }).join("");
 }
 
 function renderSubjectCards() {

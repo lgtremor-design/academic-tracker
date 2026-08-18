@@ -11,7 +11,6 @@ async function loadTasks() {
     renderUpcomingTasks();
     renderCalendar();
     updateDashboard();
-    renderSubjectFolders();
     maybeNotifyDeadlineReminders();
   } catch (err) {
     // Show this when the backend cannot send the task list.

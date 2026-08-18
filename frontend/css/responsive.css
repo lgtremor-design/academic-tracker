@@ -16,7 +16,6 @@
   .anime-thumb, .luxury-swatch { width: 100%; height: 70px; }
   .finance-grid { grid-template-columns: repeat(2, 1fr); }
   .two-col { grid-template-columns: 1fr; }
-  .folder-grid-inner { grid-template-columns: 1fr; }
   .calendar-weekdays, .calendar-days { grid-template-columns: repeat(7, minmax(32px, 1fr)); }
   .calendar-cell { min-height: 52px; padding: 5px; }
   .dashboard-calendar .calendar-weekdays, .dashboard-calendar .calendar-days { grid-template-columns: repeat(7, 1fr); }

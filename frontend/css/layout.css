@@ -77,8 +77,6 @@ nav { display: flex; flex-direction: column; gap: 2px; flex: 1; }
 .nav-link[data-tab="calendar"]::before { content: "C"; }
 .nav-link[data-tab="schedule"] { --nav-color: var(--accent); --nav-color-2: var(--accent2); }
 .nav-link[data-tab="schedule"]::before { content: "SC"; }
-.nav-link[data-tab="folders"] { --nav-color: var(--accent); --nav-color-2: var(--accent2); }
-.nav-link[data-tab="folders"]::before { content: "F"; }
 .nav-link[data-tab="analytics"] { --nav-color: var(--accent); --nav-color-2: var(--accent2); }
 .nav-link[data-tab="analytics"]::before { content: "A"; }
 .nav-link:hover {

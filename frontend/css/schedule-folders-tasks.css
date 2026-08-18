@@ -29,18 +29,6 @@
 .schedule-custom-field.hide,
 .schedule-subject-field.hide { display: none; }
 
-/* ── Folders ────────────────────────────────────────── */
-.folder-grid { display: grid; gap: 12px; grid-template-columns: 1fr; }
-.folder-card { padding: 18px; border: 1.5px solid var(--border); border-radius: var(--r-lg); background: var(--surface); box-shadow: var(--shadow-xs); display: grid; gap: 14px; backdrop-filter: blur(18px); transition: transform .18s, box-shadow .18s; }
-.folder-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
-.folder-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
-.folder-title { min-width: 0; flex: 1; }
-.folder-title h3 { font-size: 1rem; font-weight: 800; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.folder-head span { display: block; margin-top: 3px; color: var(--text3); font-size: .74rem; }
-.folder-grid-inner { display: grid; grid-template-columns: 1fr minmax(210px, 300px); gap: 12px; }
-.folder-tasks { display: grid; gap: 6px; }
-.folder-tasks span { padding: 8px 10px; border-radius: 9px; background: var(--surface2); border: 1px solid var(--border); color: var(--text2); font-size: .78rem; }
-
 /* ── Task toolbar ───────────────────────────────────── */
 .task-toolbar { display: grid; grid-template-columns: repeat(3, minmax(110px, 1fr)); gap: 8px; margin-bottom: 12px; }
 .task-toolbar select, td select, td input { width: 100%; padding: 7px 10px; border: 1.5px solid var(--border2); border-radius: 9px; background: var(--surface2); color: var(--text); font: inherit; font-size: .8rem; }

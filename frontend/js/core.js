@@ -507,7 +507,6 @@ function refreshInstantViews() {
   renderUpcomingTasks();
   renderCalendar();
   renderSchedule();
-  renderSubjectFolders();
   renderAnalytics();
 }
 
@@ -646,7 +645,6 @@ function initializeSearch() {
     renderSubjectTable();
     renderTasks();
     renderUpcomingTasks();
-    renderSubjectFolders();
     renderAnalyticsCards();
     renderPriorityTable();
   });
@@ -749,7 +747,6 @@ function showTab(tabName) {
     renderSchedule();
   }
   if (tabName === "calendar") renderCalendar();
-  if (tabName === "folders") renderSubjectFolders();
   if (tabName === "studytimer") renderStudyTimer();
 }
 

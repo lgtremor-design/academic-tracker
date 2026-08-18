@@ -443,7 +443,7 @@ async function saveSubjectMetaPayload(name, overrides = {}) {
       })
     });
     updateDashboard();
-    renderSubjectFolders();
+    renderSubjectNotes();
     renderSchedule();
     loadScheduleForm();
     return true;
@@ -457,12 +457,12 @@ function cssSafe(text) {
   return String(text).replace(/[^a-z0-9_-]/gi, "_");
 }
 
-async function saveFolderNotesByIndex(index) {
+async function saveSubjectNotesByIndex(index) {
   const subject = subjects[index];
   if (!subject) return;
   const safeId = cssSafe(subject.name);
   const saved = await saveSubjectMetaPayload(subject.name, {
-    notes: $(`folderNotes-${safeId}`).value
+    notes: $(`subjectNotes-${safeId}`).value
   });
   if (saved) showToast("Subject notes saved");
 }
@@ -489,7 +489,7 @@ function openNoteFilePickerForIndex(index) {
     reader.onload = evt => {
       existing.push({ name: file.name, type: file.type, dataUrl: evt.target.result });
       try { localStorage.setItem(key, JSON.stringify(existing)); } catch { showToast("Storage full - file not saved", "err"); return; }
-      renderSubjectFolders();
+      renderSubjectNotes();
       showToast(`Attached: ${file.name}`);
     };
     reader.readAsDataURL(file);
@@ -509,7 +509,7 @@ function getNoteFiles(subjectName) {
 function removeNoteFile(subjectName, fileName) {
   const files = getNoteFiles(subjectName).filter(f => f.name !== fileName);
   try { localStorage.setItem(`noteFiles_${subjectName}`, JSON.stringify(files)); } catch {}
-  renderSubjectFolders();
+  renderSubjectNotes();
 }
 
 /* Open an attached file (data URL) in a new browser tab */
@@ -634,61 +634,6 @@ async function saveDashboardAbsence(index) {
     absences: safeNumber(input?.value)
   });
   if (saved) showToast("Absence updated");
-}
-
-function renderSubjectFolders() {
-  const container = $("subjectFolders");
-  if (!container) return;
-
-  if (!subjects.length) {
-    container.innerHTML = `<div class="empty-state">No subject folders yet.</div>`;
-    return;
-  }
-
-  container.innerHTML = subjects.map((subject, index) => {
-    const safeId = cssSafe(subject.name);
-    const related = subjectTasks(subject.name);
-    const trend = trendForSubject(subject);
-    const attachments = getNoteFiles(subject.name);
-
-    const attachList = attachments.length
-      ? `<div class="note-attachments">
-          ${attachments.map(f => `
-            <div class="note-attach-item">
-              <span class="note-attach-name" onclick="openNoteFile(${JSON.stringify(subject.name)},${JSON.stringify(f.name)})" title="Open ${escapeAttr(f.name)}">ðŸ“„ ${escapeHtml(f.name)}</span>
-              <button class="note-attach-remove" onclick="removeNoteFile(${JSON.stringify(subject.name)},${JSON.stringify(f.name)})" title="Remove">x</button>
-            </div>`).join("")}
-        </div>`
-      : "";
-
-    return `
-      <div class="folder-card">
-        <div class="folder-head">
-          <div>
-            <h3>${escapeHtml(subject.name)}</h3>
-            <span>${related.length} linked deadline${related.length === 1 ? "" : "s"}</span>
-          </div>
-          ${badge(trend.label, trend.color)}
-        </div>
-
-        <div class="folder-grid-inner">
-          <div class="field">
-            <label>Notes</label>
-            <textarea id="folderNotes-${safeId}" rows="7">${escapeHtml(subject.notes || "")}</textarea>
-            ${attachList}
-            <div class="note-attach-actions">
-              <button class="btn btn-sm" onclick="openNoteFilePickerForIndex(${index})" title="Attach a PDF or image">ðŸ“Ž Attach File</button>
-            </div>
-          </div>
-          <div class="folder-tasks">
-            ${related.length ? related.map(task => `<span>${escapeHtml(task.description)} - ${formatDeadline(task)}</span>`).join("") : `<span>No tasks linked to this subject.</span>`}
-          </div>
-        </div>
-
-        <button class="btn btn-primary btn-sm" onclick="saveFolderNotesByIndex(${index})">Save Notes</button>
-      </div>
-    `;
-  }).join("");
 }
 
 function renderPriorityTable() {

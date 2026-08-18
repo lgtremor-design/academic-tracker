@@ -10,7 +10,6 @@ async function initialize() {
   renderCalendar();
   updateDashboard();
   renderSchedule();
-  renderSubjectFolders();
   renderTodoList();
 
   await checkServer();
@@ -20,7 +19,6 @@ async function initialize() {
   updateDashboard();
   renderCalendar();
   renderSchedule();
-  renderSubjectFolders();
 
   // Refresh health indicator every 10 seconds
   setInterval(checkServer, 10000);
