@@ -143,3 +143,45 @@ body[data-theme="standard"] .schedule-block {
   --subject-soft: rgba(79,70,229,.08);
 }
 
+/* Clean Light: keep navigation categories distinct while retaining AA-friendly text tones. */
+body[data-theme="standard"] .nav-link[data-tab="dashboard"],
+body[data-theme="standard"] .nav-link[data-tab="subjects"],
+body[data-theme="standard"] .nav-link[data-tab="studytimer"] {
+  --nav-color: var(--accent3);
+  --nav-color-2: var(--accent3);
+}
+
+body[data-theme="standard"] .nav-link[data-tab="tasks"],
+body[data-theme="standard"] .nav-link[data-tab="schedule"],
+body[data-theme="standard"] .nav-link[data-tab="folders"] {
+  --nav-color: color-mix(in srgb, var(--teal) 72%, var(--charcoal) 28%);
+  --nav-color-2: var(--teal);
+}
+
+body[data-theme="standard"] .nav-link[data-tab="calendar"],
+body[data-theme="standard"] .nav-link[data-tab="analytics"] {
+  --nav-color: color-mix(in srgb, var(--amber) 72%, var(--charcoal) 28%);
+  --nav-color-2: var(--amber);
+}
+
+body[data-theme="standard"] .subject-card:nth-child(3n + 1),
+body[data-theme="standard"] .subject-row:nth-child(3n + 1) td {
+  --subject-color: var(--accent3) !important;
+  --subject-color-2: var(--accent) !important;
+  --subject-soft: rgba(91,75,232,.10) !important;
+}
+
+body[data-theme="standard"] .subject-card:nth-child(3n + 2),
+body[data-theme="standard"] .subject-row:nth-child(3n + 2) td {
+  --subject-color: color-mix(in srgb, var(--teal) 78%, var(--charcoal) 22%) !important;
+  --subject-color-2: var(--teal) !important;
+  --subject-soft: rgba(13,148,136,.11) !important;
+}
+
+body[data-theme="standard"] .subject-card:nth-child(3n),
+body[data-theme="standard"] .subject-row:nth-child(3n) td {
+  --subject-color: color-mix(in srgb, var(--amber) 72%, var(--charcoal) 28%) !important;
+  --subject-color-2: var(--amber) !important;
+  --subject-soft: rgba(217,119,6,.11) !important;
+}
+
