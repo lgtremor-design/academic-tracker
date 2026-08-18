@@ -38,6 +38,8 @@
 .section-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 20px 0 10px; }
 .section-row .section-title { margin: 0; }
 .section-action { color: var(--accent); font-size: .72rem; font-weight: 700; }
+.due-soon-indicator { color: var(--text3); text-align: right; }
+.due-soon-indicator.has-due-soon { color: var(--amber); }
 
 /* ── Welcome hero panel ─────────────────────────────── */
 .dashboard-shell { display: grid; gap: 16px; }

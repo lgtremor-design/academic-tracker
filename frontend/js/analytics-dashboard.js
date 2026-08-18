@@ -202,10 +202,40 @@ function updateDashboard() {
   if ($("dash-avg")) $("dash-avg").textContent =
     subjects.length ? format2(calculateGWA()) : "-";
   if ($("dash-urgent")) $("dash-urgent").textContent = getUrgentCount();
+  renderDueSoonIndicator();
   renderDashboardProgress();
   renderDashboardCharts();
   renderDashboardDate();
   renderDashboardAbsences();
+}
+
+function renderDueSoonIndicator() {
+  const target = $("dueSoonIndicator");
+  if (!target) return;
+
+  const start = new Date();
+  start.setHours(0, 0, 0, 0);
+  const end = new Date(start);
+  end.setDate(end.getDate() + 3);
+
+  const isWithinWindow = (year, month, day) => {
+    const date = new Date(Number(year), Number(month) - 1, Number(day));
+    return date >= start && date < end;
+  };
+  const dueTasks = tasks.filter(task =>
+    task.status !== "Done" && isWithinWindow(task.year, task.month, task.day)
+  ).length;
+  const upcomingEvents = events.filter(event =>
+    isWithinWindow(event.year, event.month, event.day)
+  ).length;
+  const parts = [];
+
+  if (dueTasks) parts.push(`${dueTasks} task${dueTasks === 1 ? "" : "s"} due`);
+  if (upcomingEvents) parts.push(`${upcomingEvents} event${upcomingEvents === 1 ? "" : "s"}`);
+  target.textContent = parts.length
+    ? `${parts.join(", ")} in the next 3 days`
+    : "Nothing due in the next 3 days";
+  target.classList.toggle("has-due-soon", parts.length > 0);
 }
 
 function renderDashboardDate() {

@@ -139,6 +139,7 @@ async function addCalendarEvent(formEvent) {
     setCalendarEventColor("#3b82f6");
     closeCalendarEventForm();
     renderCalendar();
+    updateDashboard();
     showToast("Calendar event added");
   } catch (err) {
     showToast("Unable to add calendar event: " + err.message, "err");
@@ -178,6 +179,7 @@ async function deleteCalendarEventById(eventId) {
     events = await api(`/events/${eventId}`, { method: "DELETE" });
     popover?.classList.add("hide");
     renderCalendar();
+    updateDashboard();
     showToast("Calendar event deleted");
   } catch (err) {
     showToast("Unable to delete calendar event: " + err.message, "err");
