@@ -420,6 +420,7 @@ function renderDashboardProgress() {
   const text = $("dashProgressText");
 
   if (ring) ring.style.setProperty("--progress", `${percent}%`);
+  if (ring) ring.style.setProperty("--progress-sweep", `${percent > 0 ? percent : 4}%`);
   if (value) value.textContent = `${percent}%`;
   if (text) {
     text.textContent = summary.total

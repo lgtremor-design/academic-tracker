@@ -1,15 +1,15 @@
 /* ── Sidebar ────────────────────────────────────────── */
 header {
   position: fixed;
-  top: 16px; left: 16px; bottom: 16px;
-  width: 210px;
-  padding: 22px 12px 18px;
+  top: 14px; left: 14px; bottom: 14px;
+  width: 204px;
+  padding: 18px 10px 16px;
   display: flex;
   flex-direction: column;
   gap: 4px;
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: var(--r-xl);
+  border-radius: 10px;
   box-shadow: var(--shadow-md);
   backdrop-filter: blur(18px);
   z-index: 100;
@@ -26,31 +26,31 @@ header {
 }
 .logo-icon {
   /* This is the square box that holds the logo mark. */
-  width: 40px; height: 40px;
+  width: 34px; height: 34px;
   display: grid; place-items: center;
-  border-radius: 12px;
+  border-radius: 9px;
   background: linear-gradient(135deg, var(--accent), var(--accent3));
   box-shadow: 0 4px 14px var(--accent-glow);
   flex-shrink: 0;
   /* These lines make the logo mark clear and centered. */
   color: #fff;
-  font-size: 1.55rem;
+  font-size: 1.15rem;
   font-weight: 800;
   line-height: 1;
 }
-.logo-name { font-weight: 800; font-size: 1.1rem; color: var(--accent); letter-spacing: -.02em; }
+.logo-name { font-weight: 800; font-size: .9rem; color: var(--accent); letter-spacing: 0; }
 .logo-sub  { font-size: .6rem; color: var(--text3); font-weight: 600; letter-spacing: .03em; margin-top: 1px; }
 
 nav { display: flex; flex-direction: column; gap: 2px; flex: 1; }
 .nav-link {
   /* Each nav-link is one sidebar menu button. */
   position: relative;
-  min-height: 40px;
+  min-height: 38px;
   display: flex; align-items: center; gap: 10px;
-  padding: 9px 12px;
+  padding: 9px 11px;
   color: var(--text2);
-  border-radius: 12px;
-  font-size: .82rem; font-weight: 600;
+  border-radius: 8px;
+  font-size: .78rem; font-weight: 700;
   cursor: pointer; user-select: none;
   transition: background .15s, color .15s, transform .15s, box-shadow .15s;
   letter-spacing: -.01em;
@@ -97,15 +97,15 @@ nav { display: flex; flex-direction: column; gap: 2px; flex: 1; }
 
 /* ── Top bar ────────────────────────────────────────── */
 .portal-topbar {
-  margin-left: 242px;
-  padding: 20px 28px 0;
+  margin-left: 232px;
+  padding: 18px 30px 0;
   display: grid;
   grid-template-columns: 1fr auto;
   align-items: center;
   gap: 16px;
 }
 .hello { font-size: .75rem; color: var(--text3); font-weight: 600; letter-spacing: .02em; }
-.today { font-size: 1.4rem; font-weight: 800; color: var(--text); letter-spacing: -.03em; margin-top: 2px; }
+.today { font-size: 1.25rem; font-weight: 800; color: var(--text); letter-spacing: 0; margin-top: 2px; }
 .search-pill {
   height: 44px;
   display: flex; align-items: center;
@@ -141,7 +141,7 @@ nav { display: flex; flex-direction: column; gap: 2px; flex: 1; }
   align-items: center;
   gap: 8px;
   padding: 6px 8px 6px 12px;
-  border-radius: 999px;
+  border-radius: 8px;
   background: var(--surface);
   border: 1.5px solid var(--border2);
   box-shadow: var(--shadow-xs);
@@ -169,7 +169,7 @@ nav { display: flex; flex-direction: column; gap: 2px; flex: 1; }
 .profile-pill {
   display: flex; align-items: center; gap: 10px;
   padding: 6px 16px 6px 6px;
-  border-radius: 40px;
+  border-radius: 10px;
   background: var(--surface);
   border: 1.5px solid var(--border2);
   box-shadow: var(--shadow-sm);
