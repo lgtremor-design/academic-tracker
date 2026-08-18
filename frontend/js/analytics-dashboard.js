@@ -128,7 +128,89 @@ function renderAnalyticsTaskChart() {
 function renderAnalyticsGradeBars() {
   const container = $("analyticsGradeBars");
   if (!container) return;
-  container.innerHTML = renderPerformanceTrendChart();
+  container.innerHTML = renderDailyStudyHoursChart();
+}
+
+function renderDailyStudyHoursChart() {
+  const dayCount = 14;
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const dates = Array.from({ length: dayCount }, (_, index) => {
+    const date = new Date(today);
+    date.setDate(today.getDate() - (dayCount - 1 - index));
+    return {
+      date,
+      key: getLocalDateKey(date),
+      label: date.toLocaleDateString(undefined, { month: "short", day: "numeric" })
+    };
+  });
+  const startKey = dates[0].key;
+  const endKey = dates[dates.length - 1].key;
+  const byDate = {};
+  const subjectNames = new Set();
+
+  getStudyLog().forEach(entry => {
+    if (entry.date < startKey || entry.date > endKey) return;
+    const hours = Number(entry.hours);
+    if (!Number.isFinite(hours) || hours <= 0) return;
+    byDate[entry.date] ||= {};
+    byDate[entry.date][entry.subject] = (byDate[entry.date][entry.subject] || 0) + hours;
+    subjectNames.add(entry.subject);
+  });
+
+  const totals = dates.map(item => Object.values(byDate[item.key] || {})
+    .reduce((sum, hours) => sum + hours, 0));
+  const maxHours = Math.max(1, Math.ceil(Math.max(...totals)));
+  if (!subjectNames.size) {
+    return `<div class="empty-state">No study hours logged in the last ${dayCount} days.</div>`;
+  }
+
+  const width = 720;
+  const height = 250;
+  const left = 48;
+  const right = 18;
+  const top = 18;
+  const bottom = 48;
+  const plotW = width - left - right;
+  const plotH = height - top - bottom;
+  const slotW = plotW / dayCount;
+  const barW = Math.max(10, slotW - 12);
+  const yForHours = hours => top + plotH - (hours / maxHours) * plotH;
+  const yTicks = [0, maxHours / 2, maxHours];
+  const bars = dates.map((item, index) => {
+    const entries = Object.entries(byDate[item.key] || {});
+    let cursor = top + plotH;
+    const segments = entries.map(([subject, hours]) => {
+      const segmentHeight = (hours / maxHours) * plotH;
+      cursor -= segmentHeight;
+      return `<rect x="${(left + index * slotW + (slotW - barW) / 2).toFixed(1)}" y="${cursor.toFixed(1)}" width="${barW.toFixed(1)}" height="${Math.max(1, segmentHeight).toFixed(1)}" rx="3" fill="${subjectTheme(subject).color}"><title>${escapeHtml(subject)}: ${format2(hours)} hrs on ${escapeHtml(item.label)}</title></rect>`;
+    }).join("");
+    return segments + `<text x="${(left + index * slotW + slotW / 2).toFixed(1)}" y="${height - 22}" text-anchor="middle" class="daily-study-x-label">${escapeHtml(item.label)}</text>`;
+  }).join("");
+  const legend = [...subjectNames].sort().map(subject => `
+    <div class="legend-item">
+      <span class="legend-dot" style="background:${subjectTheme(subject).color};"></span>
+      <span>${escapeHtml(subject)}</span>
+    </div>
+  `).join("");
+
+  return `
+    <div class="daily-study-chart-wrap">
+      <svg class="daily-study-chart" viewBox="0 0 720 250" role="img" aria-label="Daily study hours for the last ${dayCount} days">
+        ${yTicks.map(value => {
+          const y = yForHours(value);
+          return `
+            <g class="chart-gridline">
+              <text x="8" y="${y + 4}" class="chart-y-label">${format2(value)}</text>
+              <line x1="${left}" x2="${left + plotW}" y1="${y}" y2="${y}"></line>
+            </g>`;
+        }).join("")}
+        <line class="chart-axis" x1="${left}" x2="${left + plotW}" y1="${top + plotH}" y2="${top + plotH}"></line>
+        ${bars}
+      </svg>
+      <div class="trend-legend">${legend}</div>
+    </div>
+  `;
 }
 
 function renderAnalyticsCards() {
