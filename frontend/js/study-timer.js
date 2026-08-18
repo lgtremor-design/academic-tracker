@@ -35,6 +35,48 @@ function addTodayHours(subjectName, hours) {
   sessionStorage.setItem(key, String(total));
 }
 
+function toggleMiniTimer() {
+  const mini = document.getElementById("miniTimer");
+  if (!mini) return;
+  _initializeMiniTimerDrag();
+  mini.classList.toggle("hide");
+  const subj = document.getElementById("miniTimerSubject");
+  if (subj) subj.textContent = _timerSubject || "No subject";
+}
+
+function _initializeMiniTimerDrag() {
+  const mini = document.getElementById("miniTimer");
+  if (!mini || mini.dataset.dragReady === "true") return;
+  mini.dataset.dragReady = "true";
+
+  let dragging = false;
+  let offsetX = 0;
+  let offsetY = 0;
+
+  mini.addEventListener("mousedown", event => {
+    if (event.target.closest("button")) return;
+    const rect = mini.getBoundingClientRect();
+    offsetX = event.clientX - rect.left;
+    offsetY = event.clientY - rect.top;
+    mini.style.left = `${rect.left}px`;
+    mini.style.top = `${rect.top}px`;
+    mini.style.right = "auto";
+    mini.style.bottom = "auto";
+    dragging = true;
+    event.preventDefault();
+  });
+
+  document.addEventListener("mousemove", event => {
+    if (!dragging) return;
+    mini.style.left = `${Math.max(0, event.clientX - offsetX)}px`;
+    mini.style.top = `${Math.max(0, event.clientY - offsetY)}px`;
+  });
+
+  document.addEventListener("mouseup", () => {
+    dragging = false;
+  });
+}
+
 function _playChime(tones, spacing) {
   try {
     const AudioContextClass = window.AudioContext || window.webkitAudioContext;
@@ -82,6 +124,7 @@ const TIMER_MODES = {
 
 /* Called when the tab becomes visible */
 function renderStudyTimer() {
+  _initializeMiniTimerDrag();
   _populateTimerSubjectSelect();
   _syncTimerMode();
   _renderTimerSummary();
@@ -329,6 +372,14 @@ function _renderClock(totalSeconds) {
   const pad = n => String(n).padStart(2, "0");
   const el = $("timerDisplay");
   if (el) el.textContent = pad(h) + ":" + pad(m) + ":" + pad(s);
+
+  const miniClock = $("miniTimerClock");
+  if (miniClock) {
+    miniClock.textContent = pad(h) + ":" + pad(m) + ":" + pad(s);
+    miniClock.classList.toggle("running", Boolean(_timerInterval));
+  }
+  const miniSubject = $("miniTimerSubject");
+  if (miniSubject) miniSubject.textContent = _timerSubject || "No subject";
 }
 
 /* Format seconds as a human-readable duration */

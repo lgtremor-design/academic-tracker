@@ -655,6 +655,7 @@
       <div class="st-btn-row">
         <button class="st-btn st-btn-start" id="timerStartBtn" onclick="startStudyTimer()" disabled>Start</button>
         <button class="st-btn st-btn-stop hide" id="timerStopBtn" onclick="stopStudyTimer()">Stop &amp; Save</button>
+        <button class="st-btn st-btn-mini" id="timerMiniBtn" onclick="toggleMiniTimer()">⊡ Mini</button>
       </div>
       <div class="st-session-log" id="timerSessionLog"></div>
     </div>
@@ -711,6 +712,14 @@
         </tbody>
       </table>
     </div>
+  </div>
+</div>
+
+<div id="miniTimer" class="mini-timer hide">
+  <div class="mini-timer-subject" id="miniTimerSubject">—</div>
+  <div class="mini-timer-clock" id="miniTimerClock">00:00:00</div>
+  <div class="mini-timer-actions">
+    <button type="button" onclick="toggleMiniTimer()">✕</button>
   </div>
 </div>
 
