@@ -543,41 +543,53 @@
       <div class="page-sub">Browse deadlines across months.</div>
     </div>
   </div>
-  <form id="calendarEventForm" class="calendar-event-form" onsubmit="addCalendarEvent(event)">
-    <div class="calendar-event-form-head">
-      <div>
-        <div class="section-title">Add Event</div>
-        <div class="page-sub">Add a note or appointment without creating a task.</div>
-      </div>
-      <button class="btn btn-primary btn-sm" type="submit">Add Event</button>
+  <div class="calendar-toolbar">
+    <div>
+      <div class="section-title">Calendar Events</div>
+      <div class="page-sub">Add a note or appointment without creating a task.</div>
     </div>
-    <div class="calendar-event-form-fields">
-      <div class="field">
-        <label for="calendarEventTitle">Title *</label>
-        <input id="calendarEventTitle" type="text" maxlength="127" placeholder="Study group meeting" required/>
-      </div>
-      <div class="field">
-        <label for="calendarEventDate">Date *</label>
-        <input id="calendarEventDate" type="date" required/>
-      </div>
-      <div class="field calendar-event-note-field">
-        <label for="calendarEventNote">Note</label>
-        <input id="calendarEventNote" type="text" maxlength="255" placeholder="Bring chapter 4 notes"/>
-      </div>
-      <div class="field calendar-event-color-field">
-        <label for="calendarEventColor">Color</label>
-        <input id="calendarEventColor" type="color" value="#3b82f6" aria-label="Event color"/>
-        <div class="calendar-color-swatches" aria-label="Preset event colors">
-          <button type="button" class="calendar-color-swatch" style="--swatch-color:#ef4444" onclick="setCalendarEventColor('#ef4444')" aria-label="Red"></button>
-          <button type="button" class="calendar-color-swatch" style="--swatch-color:#f97316" onclick="setCalendarEventColor('#f97316')" aria-label="Orange"></button>
-          <button type="button" class="calendar-color-swatch" style="--swatch-color:#eab308" onclick="setCalendarEventColor('#eab308')" aria-label="Yellow"></button>
-          <button type="button" class="calendar-color-swatch" style="--swatch-color:#22c55e" onclick="setCalendarEventColor('#22c55e')" aria-label="Green"></button>
-          <button type="button" class="calendar-color-swatch" style="--swatch-color:#3b82f6" onclick="setCalendarEventColor('#3b82f6')" aria-label="Blue"></button>
-          <button type="button" class="calendar-color-swatch" style="--swatch-color:#a855f7" onclick="setCalendarEventColor('#a855f7')" aria-label="Purple"></button>
+    <button class="btn btn-primary btn-sm" type="button" onclick="openCalendarEventForm()">+ Add Event</button>
+  </div>
+
+  <div id="calendarEventCreatePopover" class="calendar-event-popover hide" onclick="closeCalendarEventForm(event)">
+    <div class="calendar-event-popover-card calendar-event-create-card" role="dialog" aria-modal="true" aria-labelledby="calendarEventCreateTitle">
+      <button class="calendar-event-popover-close" type="button" onclick="closeCalendarEventForm()">x</button>
+      <div class="calendar-event-popover-kicker">New Calendar Event</div>
+      <h2 id="calendarEventCreateTitle">Add Event</h2>
+      <form id="calendarEventForm" class="calendar-event-form" onsubmit="addCalendarEvent(event)">
+        <div class="calendar-event-form-fields">
+          <div class="field">
+            <label for="calendarEventTitle">Title *</label>
+            <input id="calendarEventTitle" type="text" maxlength="127" placeholder="Study group meeting" required/>
+          </div>
+          <div class="field">
+            <label for="calendarEventDate">Date *</label>
+            <input id="calendarEventDate" type="date" required/>
+          </div>
+          <div class="field calendar-event-note-field">
+            <label for="calendarEventNote">Note</label>
+            <input id="calendarEventNote" type="text" maxlength="255" placeholder="Bring chapter 4 notes"/>
+          </div>
+          <div class="field calendar-event-color-field">
+            <label for="calendarEventColor">Color</label>
+            <input id="calendarEventColor" type="color" value="#3b82f6" aria-label="Event color"/>
+            <div class="calendar-color-swatches" aria-label="Preset event colors">
+              <button type="button" class="calendar-color-swatch" style="--swatch-color:#ef4444" onclick="setCalendarEventColor('#ef4444')" aria-label="Red"></button>
+              <button type="button" class="calendar-color-swatch" style="--swatch-color:#f97316" onclick="setCalendarEventColor('#f97316')" aria-label="Orange"></button>
+              <button type="button" class="calendar-color-swatch" style="--swatch-color:#eab308" onclick="setCalendarEventColor('#eab308')" aria-label="Yellow"></button>
+              <button type="button" class="calendar-color-swatch" style="--swatch-color:#22c55e" onclick="setCalendarEventColor('#22c55e')" aria-label="Green"></button>
+              <button type="button" class="calendar-color-swatch" style="--swatch-color:#3b82f6" onclick="setCalendarEventColor('#3b82f6')" aria-label="Blue"></button>
+              <button type="button" class="calendar-color-swatch" style="--swatch-color:#a855f7" onclick="setCalendarEventColor('#a855f7')" aria-label="Purple"></button>
+            </div>
+          </div>
         </div>
-      </div>
+        <div class="calendar-event-form-actions">
+          <button class="btn btn-ghost btn-sm" type="button" onclick="closeCalendarEventForm()">Cancel</button>
+          <button class="btn btn-primary btn-sm" type="submit">Add Event</button>
+        </div>
+      </form>
     </div>
-  </form>
+  </div>
   <div id="calendarGrid" class="calendar-grid"></div>
 </div>
 

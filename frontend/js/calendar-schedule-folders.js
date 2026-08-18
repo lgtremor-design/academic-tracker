@@ -101,6 +101,18 @@ function renderCalendar() {
   });
 }
 
+function openCalendarEventForm() {
+  const popover = $("calendarEventCreatePopover");
+  if (!popover) return;
+  popover.classList.remove("hide");
+  $("calendarEventTitle")?.focus();
+}
+
+function closeCalendarEventForm(clickEvent) {
+  if (clickEvent && clickEvent.target !== clickEvent.currentTarget) return;
+  $("calendarEventCreatePopover")?.classList.add("hide");
+}
+
 function setCalendarEventColor(color) {
   const picker = $("calendarEventColor");
   if (picker) picker.value = color;
@@ -125,6 +137,7 @@ async function addCalendarEvent(formEvent) {
     });
     $("calendarEventForm")?.reset();
     setCalendarEventColor("#3b82f6");
+    closeCalendarEventForm();
     renderCalendar();
     showToast("Calendar event added");
   } catch (err) {
