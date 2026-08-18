@@ -1,9 +1,3 @@
-/* ═══════════════════════════════════════════
-   Study Timer tab
-   ═══════════════════════════════════════════ */
-.nav-link[data-tab="studytimer"] { --nav-color: var(--accent); --nav-color-2: var(--accent2); }
-.nav-link[data-tab="studytimer"]::before { content: "ST"; }
-
 /* Standard professional theme override */
 body[data-theme="standard"] {
   color: var(--text);
@@ -66,25 +60,6 @@ body[data-theme="standard"] .topbar-actions {
   gap: 12px;
 }
 
-body[data-theme="standard"] .nav-link[data-tab="dashboard"],
-body[data-theme="standard"] .nav-link[data-tab="subjects"],
-body[data-theme="standard"] .nav-link[data-tab="studytimer"] {
-  --nav-color: var(--accent);
-  --nav-color-2: var(--accent2);
-}
-
-body[data-theme="standard"] .nav-link[data-tab="tasks"],
-body[data-theme="standard"] .nav-link[data-tab="schedule"] {
-  --nav-color: var(--teal);
-  --nav-color-2: #14b8a6;
-}
-
-body[data-theme="standard"] .nav-link[data-tab="calendar"],
-body[data-theme="standard"] .nav-link[data-tab="analytics"] {
-  --nav-color: var(--amber);
-  --nav-color-2: #f59e0b;
-}
-
 body[data-theme="standard"] .page-title,
 body[data-theme="standard"] .section-title,
 body[data-theme="standard"] .mini-title,
@@ -139,26 +114,6 @@ body[data-theme="standard"] .schedule-block {
   --subject-color: var(--accent);
   --subject-color-2: var(--accent2);
   --subject-soft: rgba(79,70,229,.08);
-}
-
-/* Clean Light: keep navigation categories distinct while retaining AA-friendly text tones. */
-body[data-theme="standard"] .nav-link[data-tab="dashboard"],
-body[data-theme="standard"] .nav-link[data-tab="subjects"],
-body[data-theme="standard"] .nav-link[data-tab="studytimer"] {
-  --nav-color: var(--accent3);
-  --nav-color-2: var(--accent3);
-}
-
-body[data-theme="standard"] .nav-link[data-tab="tasks"],
-body[data-theme="standard"] .nav-link[data-tab="schedule"] {
-  --nav-color: color-mix(in srgb, var(--teal) 72%, var(--charcoal) 28%);
-  --nav-color-2: var(--teal);
-}
-
-body[data-theme="standard"] .nav-link[data-tab="calendar"],
-body[data-theme="standard"] .nav-link[data-tab="analytics"] {
-  --nav-color: color-mix(in srgb, var(--amber) 72%, var(--charcoal) 28%);
-  --nav-color-2: var(--amber);
 }
 
 body[data-theme="standard"] .subject-card:nth-child(3n + 1),

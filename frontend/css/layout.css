@@ -48,52 +48,34 @@ nav { display: flex; flex-direction: column; gap: 2px; flex: 1; }
   min-height: 40px;
   display: flex; align-items: center; gap: 10px;
   padding: 9px 12px;
-  --nav-color: var(--accent);
-  --nav-color-2: var(--accent2);
-  color: var(--nav-color);
+  color: var(--text2);
   border-radius: 12px;
   font-size: .82rem; font-weight: 600;
   cursor: pointer; user-select: none;
   transition: background .15s, color .15s, transform .15s, box-shadow .15s;
   letter-spacing: -.01em;
 }
-.nav-link::before {
-  width: 28px; height: 28px;
-  display: grid; place-items: center;
+.nav-link-icon {
+  width: 18px; height: 18px;
+  display: block;
   flex-shrink: 0;
-  border-radius: 9px;
-  color: var(--nav-color);
-  background: color-mix(in srgb, var(--nav-color) 12%, #fff);
-  border: 1px solid color-mix(in srgb, var(--nav-color) 22%, transparent);
-  font: 800 .64rem var(--mono);
+  color: currentColor;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.8;
 }
-.nav-link[data-tab="dashboard"] { --nav-color: var(--accent); --nav-color-2: var(--accent2); }
-.nav-link[data-tab="dashboard"]::before { content: "D"; }
-.nav-link[data-tab="subjects"] { --nav-color: var(--accent); --nav-color-2: var(--accent2); }
-.nav-link[data-tab="subjects"]::before { content: "S"; }
-.nav-link[data-tab="tasks"] { --nav-color: var(--accent); --nav-color-2: var(--accent2); }
-.nav-link[data-tab="tasks"]::before { content: "T"; }
-.nav-link[data-tab="calendar"] { --nav-color: var(--accent); --nav-color-2: var(--accent2); }
-.nav-link[data-tab="calendar"]::before { content: "C"; }
-.nav-link[data-tab="schedule"] { --nav-color: var(--accent); --nav-color-2: var(--accent2); }
-.nav-link[data-tab="schedule"]::before { content: "SC"; }
-.nav-link[data-tab="analytics"] { --nav-color: var(--accent); --nav-color-2: var(--accent2); }
-.nav-link[data-tab="analytics"]::before { content: "A"; }
 .nav-link:hover {
-  background: color-mix(in srgb, var(--nav-color) 10%, #fff);
-  color: var(--nav-color);
+  background: var(--surface2);
+  color: var(--text);
   transform: translateX(2px);
 }
 .nav-link.active {
-  background: linear-gradient(135deg, var(--nav-color), var(--nav-color-2));
+  background: var(--accent);
   color: var(--text-inv);
   font-weight: 700;
-  box-shadow: 0 12px 26px color-mix(in srgb, var(--nav-color) 28%, transparent);
-}
-.nav-link.active::before {
-  color: var(--nav-color);
-  background: var(--text-inv);
-  border-color: rgba(var(--accent-rgb),.2);
+  box-shadow: 0 10px 22px color-mix(in srgb, var(--accent) 24%, transparent);
 }
 .nav-link.active::after { content: none; }
 
