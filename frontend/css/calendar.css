@@ -30,6 +30,10 @@
   margin: 0 0 3px;
 }
 
+.calendar-event-popover.hide {
+  display: none;
+}
+
 .calendar-event-create-card {
   width: min(560px, 100%);
 }

@@ -118,6 +118,10 @@
   color: #fff;
 }
 
+.mini-timer.hide {
+  display: none;
+}
+
 .st-session-log {
   font-size: .8rem;
   color: var(--text3);
