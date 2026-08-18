@@ -2,6 +2,16 @@
 .analytics-summary { grid-template-columns: repeat(4, minmax(160px, 1fr)); gap: 18px; margin-bottom: 20px; }
 .analytics-chart-panel { display: grid; grid-template-columns: minmax(280px, .9fr) minmax(420px, 1.6fr); gap: 18px; margin-bottom: 20px; }
 .analytics-chart-panel .chart-card { min-height: 280px; }
+.analytics-subject-hours { display: grid; grid-template-columns: minmax(170px, .9fr) minmax(150px, 1fr); align-items: center; gap: 16px; min-height: 218px; }
+.subject-hours-pie-wrap { display: grid; place-items: center; }
+.subject-hours-pie { width: min(100%, 220px); height: auto; overflow: visible; }
+.subject-hours-total { fill: var(--text); font: 800 16px var(--mono); }
+.subject-hours-total-label { fill: var(--text3); font: 700 9px var(--font); }
+.subject-hours-legend { display: grid; gap: 8px; max-height: 190px; overflow-y: auto; }
+.subject-hours-legend-item { display: grid; grid-template-columns: 10px minmax(0, 1fr) auto; align-items: center; gap: 7px; color: var(--text2); font-size: .72rem; }
+.subject-hours-swatch { width: 10px; height: 10px; border-radius: 3px; }
+.subject-hours-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.subject-hours-legend-item strong { color: var(--text); font-size: .7rem; white-space: nowrap; }
 .analytics-grade-chart { height: auto; min-height: 218px; display: block; }
 .as-card { padding: 20px; display: flex; align-items: center; gap: 18px; min-height: 104px; }
 .as-icon, .an-icon {

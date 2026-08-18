@@ -68,26 +68,61 @@ function renderAnalyticsTaskChart() {
   const container = $("analyticsTaskChart");
   if (!container) return;
 
-  const statuses = [
-    { label: "Done", color: "var(--green)" },
-    { label: "In Progress", color: "var(--blue)" },
-    { label: "Not Started", color: "var(--amber)" }
-  ];
-  const total = Math.max(tasks.length, 1);
+  const subjectHours = Object.entries(getStudyHoursBySubject(180))
+    .map(([name, hours]) => ({ name, hours: Number(hours) }))
+    .filter(item => Number.isFinite(item.hours) && item.hours > 0)
+    .sort((a, b) => b.hours - a.hours);
 
-  container.innerHTML = statuses.map(status => {
-    const count = tasks.filter(task => task.status === status.label).length;
-    const width = Math.round((count / total) * 100);
-    return `
-      <div class="bar-row">
-        <span><i style="background:${status.color};"></i>${status.label}</span>
-        <div class="bar-track">
-          <div class="bar-fill" style="width:${width}%; background:${status.color};"></div>
-        </div>
-        <strong>${count}</strong>
-      </div>
-    `;
-  }).join("");
+  if (!subjectHours.length) {
+    container.innerHTML = `<div class="empty-state">No study hours logged yet.</div>`;
+    return;
+  }
+
+  const total = subjectHours.reduce((sum, item) => sum + item.hours, 0);
+  const center = 110;
+  const radius = 82;
+  let angle = -Math.PI / 2;
+  const polarPoint = currentAngle => [
+    center + radius * Math.cos(currentAngle),
+    center + radius * Math.sin(currentAngle)
+  ];
+  const slices = subjectHours.map(item => {
+    const startAngle = angle;
+    const endAngle = angle + (item.hours / total) * Math.PI * 2;
+    angle = endAngle;
+    const [startX, startY] = polarPoint(startAngle);
+    const [endX, endY] = polarPoint(endAngle);
+    const largeArc = endAngle - startAngle > Math.PI ? 1 : 0;
+    const color = subjectTheme(item.name).color;
+    return {
+      ...item,
+      color,
+      path: `M ${center} ${center} L ${startX.toFixed(2)} ${startY.toFixed(2)} A ${radius} ${radius} 0 ${largeArc} 1 ${endX.toFixed(2)} ${endY.toFixed(2)} Z`
+    };
+  });
+
+  const chart = slices.length === 1
+    ? `<circle cx="${center}" cy="${center}" r="${radius}" fill="${slices[0].color}"></circle>`
+    : slices.map(slice => `<path d="${slice.path}" fill="${slice.color}" stroke="var(--surface)" stroke-width="2"></path>`).join("");
+  const legend = slices.map(slice => `
+    <div class="subject-hours-legend-item">
+      <span class="subject-hours-swatch" style="background:${slice.color};"></span>
+      <span class="subject-hours-name">${escapeHtml(slice.name)}</span>
+      <strong>${format2(slice.hours)} hrs</strong>
+    </div>
+  `).join("");
+
+  container.innerHTML = `
+    <div class="subject-hours-pie-wrap">
+      <svg class="subject-hours-pie" viewBox="0 0 220 220" role="img" aria-label="Study hours by subject">
+        ${chart}
+        <circle cx="${center}" cy="${center}" r="44" fill="var(--surface)"></circle>
+        <text x="${center}" y="106" text-anchor="middle" class="subject-hours-total">${format2(total)}</text>
+        <text x="${center}" y="122" text-anchor="middle" class="subject-hours-total-label">hours</text>
+      </svg>
+    </div>
+    <div class="subject-hours-legend">${legend}</div>
+  `;
 }
 
 function renderAnalyticsGradeBars() {

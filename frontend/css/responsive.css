@@ -46,6 +46,7 @@
   .theme-switcher { justify-content: space-between; }
   .theme-switcher select { min-width: 0; flex: 1; }
   .as-card { min-height: 92px; }
+  .analytics-subject-hours { grid-template-columns: 1fr; }
   .bar-row { grid-template-columns: 1fr; gap: 6px; }
   .trend-legend { display: grid; grid-template-columns: 1fr; }
   .welcome-panel { padding: 22px; }
