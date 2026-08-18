@@ -65,10 +65,17 @@ body {
   min-height: 100vh;
   font-family: var(--font);
   font-size: 14px;
+  line-height: 1.5;
   color: var(--text);
   background: linear-gradient(180deg, #ffffff 0%, var(--bg) 36%, var(--bg2) 100%);
   -webkit-font-smoothing: antialiased;
   transition: background .22s ease, color .22s ease;
+}
+button, input, select, textarea { font: inherit; }
+h1, h2, h3 { line-height: 1.2; }
+:where(a, button, input, select, textarea):focus-visible {
+  outline: 3px solid var(--accent2);
+  outline-offset: 3px;
 }
 body.theme-is-switching .anime-theme-backdrop,
 body.theme-is-switching .anime-hero-card {

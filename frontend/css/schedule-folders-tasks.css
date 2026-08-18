@@ -1,5 +1,5 @@
 /* ── Schedule ───────────────────────────────────────── */
-.schedule-board { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
+.schedule-board { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; }
 .schedule-day {
   padding: 18px;
   border: 1.5px solid var(--border);
@@ -30,7 +30,7 @@
 .schedule-subject-field.hide { display: none; }
 
 /* ── Task toolbar ───────────────────────────────────── */
-.task-toolbar { display: grid; grid-template-columns: repeat(3, minmax(110px, 1fr)); gap: 8px; margin-bottom: 12px; }
+.task-toolbar { display: grid; grid-template-columns: repeat(3, minmax(110px, 1fr)); gap: 10px; margin-bottom: 14px; }
 .task-toolbar select, td select, td input { width: 100%; padding: 7px 10px; border: 1.5px solid var(--border2); border-radius: 9px; background: var(--surface2); color: var(--text); font: inherit; font-size: .8rem; }
 .table-actions { min-width: 128px; display: flex; flex-wrap: wrap; gap: 5px; }
 .overdue-row { background: rgba(239,68,68,.08); }
@@ -42,7 +42,7 @@
 
 /* Criteria chips */
 .criteria-summary { min-width: 200px; max-width: 340px; display: flex; flex-wrap: wrap; gap: 6px; }
-.criteria-chip { display: grid; gap: 2px; max-width: 100%; padding: 5px 9px; border-radius: 9px; background: var(--surface2); border: 1px solid var(--border); }
+.criteria-chip { display: grid; gap: 2px; max-width: 100%; padding: 6px 10px; border-radius: 9px; background: var(--surface2); border: 1px solid var(--border); }
 .criteria-chip strong { color: var(--text); font-size: .7rem; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .criteria-chip em     { color: var(--accent); font-style: normal; font-size: .66rem; font-weight: 800; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .criteria-chip small  { color: var(--text3); font-size: .6rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

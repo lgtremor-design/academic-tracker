@@ -9,7 +9,6 @@ body[data-theme="standard"] {
 
 body[data-theme="standard"]::before,
 body[data-theme="standard"] .anime-theme-backdrop,
-body[data-theme="standard"] .anime-thumb-strip,
 body[data-theme="standard"] .anime-hero-card {
   display: none;
 }

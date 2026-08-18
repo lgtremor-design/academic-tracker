@@ -329,6 +329,14 @@ const SUBJECT_COLOR_PALETTE = [
 function subjectTheme(subjectOrName) {
   const name = typeof subjectOrName === "string" ? subjectOrName : subjectOrName?.name;
   const key = String(name || "General");
+
+  // Use the loaded subject order for known subjects so the current list gets
+  // distinct colors; retain a stable hash for ad-hoc task or schedule names.
+  const subjectIndex = Array.isArray(subjects)
+    ? subjects.findIndex(subject => subject?.name === name)
+    : -1;
+  if (subjectIndex >= 0) return SUBJECT_COLOR_PALETTE[subjectIndex % SUBJECT_COLOR_PALETTE.length];
+
   let hash = 0;
   for (let index = 0; index < key.length; index++) {
     hash = (hash * 31 + key.charCodeAt(index)) >>> 0;
@@ -337,7 +345,7 @@ function subjectTheme(subjectOrName) {
 }
 
 function subjectThemeStyle(theme) {
-  return `--subject-color:${theme.color}; --subject-color-2:${theme.color2}; --subject-soft:${theme.soft};`;
+  return `--subject-color:${theme.color} !important; --subject-color-2:${theme.color2} !important; --subject-soft:${theme.soft} !important;`;
 }
 
 function trendValuesForSubject(subject) {

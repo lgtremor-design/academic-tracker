@@ -257,13 +257,13 @@
 }
 
 /* ── Stat cards ─────────────────────────────────────── */
-.finance-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 14px; }
+.finance-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 16px; }
 .finance-card {
   display: grid;
   grid-template-columns: 58px 1fr;
   align-items: center;
   column-gap: 16px;
-  min-height: 112px; padding: 18px;
+  min-height: 116px; padding: 20px;
   border-radius: var(--r-lg);
   background: var(--surface);
   border: 1.5px solid var(--border);
@@ -286,7 +286,7 @@
   font: 800 1.05rem var(--font);
 }
 .finance-icon svg { width: 25px; height: 25px; stroke: currentColor; stroke-width: 2.2; fill: none; stroke-linecap: round; stroke-linejoin: round; }
-.finance-card .hstat-val { font-size: 2rem; font-weight: 800; color: var(--text); letter-spacing: 0; }
+.finance-card .hstat-val { font-size: 2rem; font-weight: 800; color: var(--text); letter-spacing: 0; line-height: 1.1; }
 .finance-card .hstat-lbl { font-size: .74rem; font-weight: 700; color: var(--text3); margin-top: 3px; text-transform: none; letter-spacing: 0; }
 
 /* ── Dashboard grid ─────────────────────────────────── */
@@ -355,7 +355,7 @@
   margin-top: 20px;
 }
 .deadline-strip    { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); }
-.subject-card-grid { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); }
+.subject-card-grid { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); }
 .analytics-summary { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); margin-bottom: 18px; }
 .analytics-grid    { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
 .dashboard-deadlines { grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); }
@@ -401,7 +401,7 @@
 /* subject cards */
 .subject-card {
   position: relative;
-  min-height: 144px; padding: 16px;
+  min-height: 144px; padding: 18px;
   overflow: hidden;
   --subject-color: var(--accent);
   --subject-color-2: var(--accent2);
