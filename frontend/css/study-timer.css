@@ -122,6 +122,52 @@
   display: none;
 }
 
+.mini-timer {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  z-index: 9999;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 10px;
+  min-width: 148px;
+  padding: 10px 16px;
+  color: #fff;
+  background: #1e1e2e;
+  border-radius: 14px;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, .24);
+  cursor: move;
+  user-select: none;
+}
+.mini-timer-subject {
+  grid-column: 1 / -1;
+  min-width: 0;
+  overflow: hidden;
+  color: rgba(255, 255, 255, .62);
+  font-size: .68rem;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.mini-timer-clock {
+  color: #fff;
+  font: 1.4rem/1.1 "JetBrains Mono", Consolas, monospace;
+  font-variant-numeric: tabular-nums;
+}
+.mini-timer-clock.running { color: #22c55e; }
+.mini-timer-actions { display: flex; align-items: center; }
+.mini-timer-actions button {
+  padding: 2px;
+  color: rgba(255, 255, 255, .72);
+  background: transparent;
+  border: 0;
+  font-size: .9rem;
+  line-height: 1;
+  cursor: pointer;
+}
+.mini-timer-actions button:hover { color: #fff; }
+
 .st-session-log {
   font-size: .8rem;
   color: var(--text3);
