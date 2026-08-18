@@ -35,25 +35,6 @@ body[data-theme="standard"] .theme-switcher {
   backdrop-filter: none;
 }
 
-body[data-theme="standard"] .welcome-panel {
-  min-height: 164px;
-  grid-template-columns: 1fr 210px;
-  background:
-    radial-gradient(ellipse at 85% 10%, rgba(255,255,255,.18) 0%, transparent 42%),
-    radial-gradient(ellipse at 5% 90%, rgba(16,185,129,.2) 0%, transparent 38%),
-    linear-gradient(135deg, #6d5dfc 0%, #8b7cfd 55%, #4f46e5 100%);
-  border: 0;
-  box-shadow: var(--shadow-lg);
-}
-
-body[data-theme="standard"] .welcome-panel::after {
-  display: none;
-}
-
-body[data-theme="standard"] .standard-welcome-art {
-  display: block;
-}
-
 body[data-theme="standard"] .topbar-actions {
   display: flex;
   align-items: center;

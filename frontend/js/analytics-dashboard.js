@@ -319,11 +319,41 @@ function updateDashboard() {
   if ($("dash-avg")) $("dash-avg").textContent =
     subjects.length ? format2(calculateGWA()) : "-";
   if ($("dash-urgent")) $("dash-urgent").textContent = getUrgentCount();
+  renderStudyStreak();
   renderDueSoonIndicator();
   renderDashboardProgress();
   renderDashboardCharts();
   renderDashboardDate();
   renderDashboardAbsences();
+}
+
+function renderStudyStreak() {
+  const value = $("dash-streak");
+  const label = $("dash-streak-label");
+  if (!value || !label) return;
+
+  const activeDates = new Set(
+    getStudyLog()
+      .filter(entry => Number(entry.hours) > 0)
+      .map(entry => entry.date)
+  );
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  let cursor = new Date(today);
+  let streak = 0;
+
+  if (!activeDates.has(getLocalDateKey(cursor))) {
+    cursor.setDate(cursor.getDate() - 1);
+  }
+  if (activeDates.has(getLocalDateKey(cursor))) {
+    while (activeDates.has(getLocalDateKey(cursor))) {
+      streak++;
+      cursor.setDate(cursor.getDate() - 1);
+    }
+  }
+
+  value.textContent = String(streak);
+  label.textContent = streak === 0 ? "No study streak yet" : String(streak) + " day streak";
 }
 
 function renderDueSoonIndicator() {

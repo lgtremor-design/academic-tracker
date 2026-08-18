@@ -43,6 +43,11 @@
 
 /* ── Welcome hero panel ─────────────────────────────── */
 .dashboard-shell { display: grid; gap: 16px; }
+.theme-visual-controls { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.theme-visual-controls > img { width: 42px; height: 42px; object-fit: cover; border-radius: 10px; border: 1px solid var(--border2); background: var(--surface2); cursor: zoom-in; }
+.theme-visual-controls > img[hidden] { display: none; }
+.theme-visual-controls .anime-thumb-strip { display: flex; gap: 4px; max-width: 130px; overflow-x: auto; }
+.theme-visual-controls .anime-thumb { width: 34px; height: 34px; border-radius: 8px; }
 .welcome-panel {
   position: relative;
   min-height: 252px;
@@ -252,7 +257,7 @@
 }
 
 /* ── Stat cards ─────────────────────────────────────── */
-.finance-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
+.finance-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 14px; }
 .finance-card {
   display: grid;
   grid-template-columns: 58px 1fr;

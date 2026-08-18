@@ -71,7 +71,6 @@ body {
   transition: background .22s ease, color .22s ease;
 }
 body.theme-is-switching .anime-theme-backdrop,
-body.theme-is-switching .welcome-panel,
 body.theme-is-switching .anime-hero-card {
   opacity: .72;
 }
