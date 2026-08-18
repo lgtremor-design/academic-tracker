@@ -464,21 +464,30 @@ function renderSubjectCards() {
     return;
   }
 
-  container.innerHTML = subjects.map(subject => {
-    const grade = safeNumber(subject.weightedGrade ?? subject.average ?? 0);
-    const equivalent = safeNumber(subject.equivalentGrade, 5);
-    const notes = subject.notes || "No notes";
-    const width = Math.min(100, Math.max(0, grade));
-    const theme = subjectTheme(subject.name);
+  const rows = getStudyHourRows({ includeZero: true });
+  const maxHours = Math.max(1, ...rows.map(row => row.hours));
+  const hasStudyTime = rows.some(row => row.hours > 0);
+
+  container.innerHTML = rows.map(row => {
+    const width = row.hours > 0 ? Math.max(4, Math.min(100, (row.hours / maxHours) * 100)) : 0;
+    const targetPct = row.target > 0 ? Math.min(100, (row.hours / row.target) * 100) : 0;
+    const note = row.target > 0
+      ? `${formatHours(Math.max(0, row.target - row.hours))} left of ${formatHours(row.target)} target`
+      : hasStudyTime
+      ? "No weekly target set"
+      : "No timer sessions yet";
 
     return `
-      <div class="subject-card" style="${subjectThemeStyle(theme)}">
-        <div class="sc-name" style="color:${theme.color};">${escapeHtml(subject.name)}</div>
-        <div class="sc-notes">${escapeHtml(notes)}</div>
-        <div class="sc-grade">${format2(grade)} / ${format2(equivalent, 5)}</div>
-        <div class="sc-bar-wrap">
-          <div class="sc-bar" style="width:${width}%; background:linear-gradient(90deg, var(--subject-color), var(--subject-color-2));"></div>
+      <div class="subject-card study-hour-card" style="${subjectThemeStyle(row.theme)}">
+        <div class="sc-topline">
+          <div class="sc-name" style="color:${row.theme.color};">${escapeHtml(row.name)}</div>
+          <div class="sc-hours">${formatHours(row.hours)}</div>
         </div>
+        <div class="sc-notes">${escapeHtml(note)}</div>
+        <div class="sc-bar-wrap" aria-label="${escapeAttr(row.name)} study hours">
+          <div class="sc-bar" style="width:${width.toFixed(1)}%; background:linear-gradient(90deg, var(--subject-color), var(--subject-color-2));"></div>
+        </div>
+        ${row.target > 0 ? `<div class="sc-target-line"><span style="width:${targetPct.toFixed(1)}%;"></span></div>` : ""}
       </div>
     `;
   }).join("");

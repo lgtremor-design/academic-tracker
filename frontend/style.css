@@ -9,11 +9,6 @@
 @import url('css/themes.css');
 @import url('css/study-timer.css');
 @import url('css/attachments.css');
-<<<<<<< HEAD
-=======
-<<<<<<<
-=======
->>>>>>>
 .st-total-val {
   display: inline-flex;
   flex-direction: column;
@@ -31,7 +26,6 @@
   font-size: .75rem;
   font-weight: 500;
 }
->>>>>>> 6773ba6 (show today's and total study hours in study timer)
 
 .st-btn-mini {
   background: #1e1e2e;

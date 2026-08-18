@@ -474,6 +474,30 @@ function getTrackedStudyHours(subject) {
   return safeNumber(subject?.trackedStudyHours);
 }
 
+function getStudyHourRows({ includeZero = false } = {}) {
+  return subjects
+    .map(subject => ({
+      subject,
+      name: subject.name || "Unnamed Subject",
+      hours: getTrackedStudyHours(subject),
+      target: getStudyTargetHours(subject),
+      theme: subjectTheme(subject.name || "Unnamed Subject")
+    }))
+    .filter(row => includeZero || row.hours > 0)
+    .sort((a, b) => b.hours - a.hours || a.name.localeCompare(b.name));
+}
+
+function getTotalTrackedStudyHours() {
+  return subjects.reduce((sum, subject) => sum + getTrackedStudyHours(subject), 0);
+}
+
+function getStudyHoursBySubjectFromSubjects({ includeZero = false } = {}) {
+  return getStudyHourRows({ includeZero }).reduce((totals, row) => {
+    totals[row.name] = row.hours;
+    return totals;
+  }, {});
+}
+
 function getStudyTargetHours(subject) {
   return safeNumber(subject?.studyHours);
 }

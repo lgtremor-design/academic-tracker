@@ -26,6 +26,7 @@ function renderAnalyticsSummary() {
   const avg = calculateAverageGrade();
   const done = tasks.filter(t => t.status === "Done").length;
   const total = tasks.length;
+  const studied = getTotalTrackedStudyHours();
 
   container.innerHTML = `
     <div class="as-card">
@@ -50,10 +51,10 @@ function renderAnalyticsSummary() {
       </div>
     </div>
     <div class="as-card">
-      <div class="as-icon">!</div>
+      <div class="as-icon">HRS</div>
       <div>
-        <div class="as-val">${getUrgentCount()}</div>
-        <div class="as-lbl">Urgent Tasks</div>
+        <div class="as-val">${formatHours(studied)}</div>
+        <div class="as-lbl">Study Time</div>
       </div>
     </div>
   `;
@@ -68,13 +69,13 @@ function renderAnalyticsTaskChart() {
   const container = $("analyticsTaskChart");
   if (!container) return;
 
-  const subjectHours = Object.entries(getStudyHoursBySubject(180))
+  const subjectHours = Object.entries(getStudyHoursBySubjectFromSubjects())
     .map(([name, hours]) => ({ name, hours: Number(hours) }))
     .filter(item => Number.isFinite(item.hours) && item.hours > 0)
     .sort((a, b) => b.hours - a.hours);
 
   if (!subjectHours.length) {
-    container.innerHTML = `<div class="empty-state">No study hours logged yet.</div>`;
+    container.innerHTML = `<div class="empty-state">No study hours logged yet. Complete a timer session to fill this chart.</div>`;
     return;
   }
 
@@ -402,15 +403,29 @@ function getCompletionPercent() {
   return Math.round((done / tasks.length) * 100);
 }
 
+function getTaskStatusSummary() {
+  const completed = tasks.filter(task => task.status === "Done").length;
+  const inProgress = tasks.filter(task => task.status === "In Progress").length;
+  const pending = tasks.filter(task => task.status === "Not Started").length;
+  const overdue = tasks.filter(task => isTaskOverdue(task)).length;
+  const remaining = Math.max(0, tasks.length - completed);
+  return { total: tasks.length, completed, inProgress, pending, overdue, remaining };
+}
+
 function renderDashboardProgress() {
   const percent = getCompletionPercent();
+  const summary = getTaskStatusSummary();
   const ring = $("dashProgressRing");
   const value = $("dashProgressValue");
   const text = $("dashProgressText");
 
   if (ring) ring.style.setProperty("--progress", `${percent}%`);
   if (value) value.textContent = `${percent}%`;
-  if (text) text.textContent = `${percent}% complete`;
+  if (text) {
+    text.textContent = summary.total
+      ? `${summary.completed} complete, ${summary.remaining} remaining`
+      : "No tasks yet";
+  }
 }
 
 function renderDashboardCharts() {
@@ -422,26 +437,38 @@ function renderTaskStatusChart() {
   const container = $("dashboardBarChart");
   if (!container) return;
 
-  const statuses = [
-    { label: "Done", color: "var(--green)" },
-    { label: "In Progress", color: "var(--blue)" },
-    { label: "Not Started", color: "var(--amber)" }
-  ];
-  const total = Math.max(tasks.length, 1);
+  if (!tasks.length) {
+    container.innerHTML = `<div class="empty-state">No tasks yet. Add tasks to see progress.</div>`;
+    return;
+  }
 
-  container.innerHTML = statuses.map(status => {
-    const count = tasks.filter(task => task.status === status.label).length;
-    const width = Math.round((count / total) * 100);
+  const summary = getTaskStatusSummary();
+  const statuses = [
+    { label: "Completed", count: summary.completed, color: "var(--green)" },
+    { label: "In Progress", count: summary.inProgress, color: "var(--blue)" },
+    { label: "Pending", count: summary.pending, color: "var(--amber)" },
+    { label: "Overdue", count: summary.overdue, color: "var(--red)" }
+  ];
+  const total = Math.max(summary.total, 1);
+
+  container.innerHTML = `
+    <div class="task-progress-summary">
+      <strong>${summary.completed}/${summary.total}</strong>
+      <span>tasks finished</span>
+    </div>
+    ${statuses.map(status => {
+      const width = Math.round((status.count / total) * 100);
     return `
-      <div class="bar-row">
-        <span>${status.label}</span>
+      <div class="bar-row task-status-row">
+        <span><i style="background:${status.color};"></i>${status.label}</span>
         <div class="bar-track">
           <div class="bar-fill" style="width:${width}%; background:${status.color};"></div>
         </div>
-        <strong>${count}</strong>
+        <strong>${status.count}</strong>
       </div>
     `;
-  }).join("");
+    }).join("")}
+  `;
 }
 
 function renderGradeChart() {

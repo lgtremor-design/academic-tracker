@@ -24,6 +24,7 @@
   .deadline-modal { max-height: calc(100vh - 28px); }
   .analytics-summary { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .bar-row { grid-template-columns: 112px 1fr 24px; }
+  .task-status-row { grid-template-columns: 104px 1fr 28px; }
   .performance-line-chart { height: 210px; }
 }
 
@@ -48,6 +49,8 @@
   .as-card { min-height: 92px; }
   .analytics-subject-hours { grid-template-columns: 1fr; }
   .bar-row { grid-template-columns: 1fr; gap: 6px; }
+  .task-status-row { grid-template-columns: 1fr; }
+  .task-progress-summary { align-items: flex-start; flex-direction: column; gap: 3px; }
   .trend-legend { display: grid; grid-template-columns: 1fr; }
   .anime-hero-card { min-height: 220px; }
   .anime-bg-layer.layer-1 { width: 100vw; }
