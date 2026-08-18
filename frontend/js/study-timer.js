@@ -15,6 +15,7 @@ let _timerInterval    = null;   // setInterval handle
 let _timerSessionLog  = [];     // [{subject, duration (hrs), time}] for display
 let _timerMode        = "free"; // selected study method
 let _pomodoroSessions = Number(localStorage.getItem("noviPomodoroSessions") || "0");
+let _timerCompletionAlarmPlayed = false;
 
 function getTodayKey(subjectName) {
   const today = new Date();
@@ -32,6 +33,44 @@ function addTodayHours(subjectName, hours) {
   const key = getTodayKey(subjectName);
   const total = getTodayHours(subjectName) + hours;
   sessionStorage.setItem(key, String(total));
+}
+
+function _playChime(tones, spacing) {
+  try {
+    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+    if (!AudioContextClass) return;
+
+    const audioContext = new AudioContextClass();
+    const startTime = audioContext.currentTime;
+    tones.forEach((frequency, index) => {
+      const oscillator = audioContext.createOscillator();
+      const gain = audioContext.createGain();
+      const toneStart = startTime + index * spacing;
+      const toneEnd = toneStart + 0.16;
+
+      oscillator.type = "sine";
+      oscillator.frequency.value = frequency;
+      gain.gain.setValueAtTime(0.0001, toneStart);
+      gain.gain.exponentialRampToValueAtTime(0.16, toneStart + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.0001, toneEnd);
+      oscillator.connect(gain);
+      gain.connect(audioContext.destination);
+      oscillator.start(toneStart);
+      oscillator.stop(toneEnd);
+    });
+
+    setTimeout(() => audioContext.close(), (tones.length * spacing + 0.4) * 1000);
+  } catch (_err) {
+    // Audio may be unavailable or blocked by the browser.
+  }
+}
+
+function _playGoalAlarm() {
+  _playChime([523, 659, 784], 0.2);
+}
+
+function _playTimerCompletionAlarm() {
+  _playChime([440, 523], 0.15);
 }
 
 const TIMER_MODES = {
@@ -164,6 +203,7 @@ function startStudyTimer() {
   _timerSubject  = sel.value;
   _timerStartTs  = Date.now();
   _timerElapsed  = 0;
+  _timerCompletionAlarmPlayed = false;
   _syncTimerMode();
   const mode = TIMER_MODES[_timerMode] || TIMER_MODES.free;
 
@@ -171,6 +211,8 @@ function startStudyTimer() {
     _timerElapsed = Math.floor((Date.now() - _timerStartTs) / 1000);
     _renderClock(_timerElapsed);
     if (mode.seconds > 0 && _timerElapsed >= mode.seconds) {
+      _timerElapsed = mode.seconds;
+      _renderClock(mode.seconds);
       stopStudyTimer(true);
     }
   }, 1000);
@@ -200,13 +242,36 @@ async function stopStudyTimer(autoFinished = false) {
   }
 
   const hours = elapsed / 3600;
+  const savedName = _timerSubject;
+  let goalReached = false;
+  let completionNotified = false;
+
+  if (autoFinished && !_timerCompletionAlarmPlayed) {
+    _timerCompletionAlarmPlayed = true;
+    completionNotified = true;
+    _playTimerCompletionAlarm();
+    const completedMode = TIMER_MODES[_timerMode] || TIMER_MODES.free;
+    const completedModeLabel = completedMode.label.replace(/\b\w/g, letter => letter.toUpperCase());
+    showToast(`${completedModeLabel} session complete!`);
+  }
 
   try {
     subjects = await api("/subjects/studyhours", {
       method: "POST",
-      body: JSON.stringify({ name: _timerSubject, hours })
+      body: JSON.stringify({ name: savedName, hours })
     });
-    addTodayHours(_timerSubject, hours);
+    addTodayHours(savedName, hours);
+
+    const subjectData = subjects.find(s => s.name === savedName);
+    if (subjectData) {
+      const prevTotal = subjectData.trackedStudyHours - hours;
+      const target = subjectData.studyHours;
+      if (target > 0 && prevTotal < target && subjectData.trackedStudyHours >= target) {
+        goalReached = true;
+        _playGoalAlarm();
+        showToast(`🎉 Goal reached for ${savedName}! You hit your ${formatHours(target)} hr target.`);
+      }
+    }
 
     // Log the session for display
     _timerSessionLog.unshift({
@@ -222,7 +287,9 @@ async function stopStudyTimer(autoFinished = false) {
       localStorage.setItem("noviPomodoroSessions", String(_pomodoroSessions));
       _renderPomodoroCount();
     }
-    showToast((autoFinished && _timerMode === "pomodoro" ? "Pomodoro complete. Take a 5 minute break. Saved " : autoFinished ? "Technique finished. Saved " : "Saved ") + _formatDuration(elapsed) + " for " + _timerSubject);
+    if (!goalReached && !completionNotified) {
+      showToast((autoFinished && _timerMode === "pomodoro" ? "Pomodoro complete. Take a 5 minute break. Saved " : autoFinished ? "Technique finished. Saved " : "Saved ") + _formatDuration(elapsed) + " for " + _timerSubject);
+    }
     updateDashboard();
     renderSubjects();
     renderAnalytics();
