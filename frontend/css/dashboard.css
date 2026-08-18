@@ -361,7 +361,7 @@
 .dashboard-calendar .calendar-weekdays, .dashboard-calendar .calendar-days { gap: 3px; }
 .dashboard-calendar .calendar-cell { min-height: 38px; padding: 4px; border-radius: 7px; }
 .dashboard-calendar .calendar-day { margin-bottom: 2px; font-size: .65rem; }
-.dashboard-calendar .calendar-task { width: 5px; height: 5px; padding: 0; border-radius: 50%; background: var(--accent); }
+.dashboard-calendar .calendar-task { width: 5px; height: 5px; padding: 0; border-radius: 50%; background: var(--subject-color, var(--accent)); border-left: 0; }
 .dashboard-calendar .calendar-task strong, .dashboard-calendar .calendar-task span { display: none; }
 .dashboard-calendar .calendar-cell { cursor: pointer; transition: transform .14s, background .14s; }
 .dashboard-calendar .calendar-cell:not(.muted):hover { transform: translateY(-1px); background: var(--surface3); }

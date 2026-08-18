@@ -438,7 +438,7 @@ function renderSubjectNotes() {
     return `
       <article class="subject-note-card">
         <div class="subject-note-head">
-          <h3>${escapeHtml(subject.name)}</h3>
+          <h3 style="color:${subjectTheme(subject.name).color};">${escapeHtml(subject.name)}</h3>
           <span>${attachments.length} file${attachments.length === 1 ? "" : "s"}</span>
         </div>
         <div class="field">
@@ -473,7 +473,7 @@ function renderSubjectCards() {
 
     return `
       <div class="subject-card" style="${subjectThemeStyle(theme)}">
-        <div class="sc-name">${escapeHtml(subject.name)}</div>
+        <div class="sc-name" style="color:${theme.color};">${escapeHtml(subject.name)}</div>
         <div class="sc-notes">${escapeHtml(notes)}</div>
         <div class="sc-grade">${format2(grade)} / ${format2(equivalent, 5)}</div>
         <div class="sc-bar-wrap">

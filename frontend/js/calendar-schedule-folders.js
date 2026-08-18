@@ -44,8 +44,8 @@ function calendarDeadlineMarkup(dayTasks, dayEvents = []) {
         const days = getDaysLeft(task);
         const tone = days < 0 ? "urgent" : days <= 1 ? "urgent" : days <= 3 ? "high" : "normal";
         return `
-          <div class="calendar-task ${tone}">
-            <strong>${escapeHtml(task.subjectName || "General")}</strong>
+          <div class="calendar-task ${tone}" style="${subjectThemeStyle(subjectTheme(task.subjectName))}">
+            <strong style="color:${subjectTheme(task.subjectName).color};">${escapeHtml(task.subjectName || "General")}</strong>
             <span>${escapeHtml(task.description)}</span>
           </div>
         `;
@@ -208,7 +208,7 @@ function openDeadlineModal(year, month, day) {
     body.innerHTML = dayTasks.map(task => `
       <div class="deadline-item">
         <div class="deadline-item-head">
-          <strong>${escapeHtml(task.subjectName || "General")}</strong>
+          <strong style="color:${subjectTheme(task.subjectName).color};">${escapeHtml(task.subjectName || "General")}</strong>
           <span class="deadline-time">${formatTaskTime(task)}</span>
         </div>
         <p>${escapeHtml(task.description || "Untitled task")}</p>
@@ -255,8 +255,8 @@ function renderSchedule() {
       <div class="schedule-day">
         <h3>${day}</h3>
         ${daySubjects.length ? daySubjects.map(subject => `
-          <div class="schedule-block">
-            <strong>${escapeHtml(subject.name)}</strong>
+          <div class="schedule-block" style="${subjectThemeStyle(subjectTheme(subject.name))}">
+            <strong style="color:${subjectTheme(subject.name).color};">${escapeHtml(subject.name)}</strong>
             <span>${formatScheduleTime(subject)}</span>
             <small>${escapeHtml(subject.scheduleLocation || "No room set")}</small>
           </div>
@@ -315,12 +315,25 @@ function subjectInitial(subject) {
   return String(subject?.name || "?").trim().charAt(0).toUpperCase() || "?";
 }
 
-function subjectTheme(name) {
-  return {
-    color: "var(--accent)",
-    color2: "var(--accent2)",
-    soft: "var(--accent-dim)"
-  };
+const SUBJECT_COLOR_PALETTE = [
+  { color: "#2563eb", color2: "#60a5fa", soft: "rgba(37,99,235,.12)" },
+  { color: "#0f766e", color2: "#2dd4bf", soft: "rgba(15,118,110,.12)" },
+  { color: "#c2410c", color2: "#fb923c", soft: "rgba(194,65,12,.12)" },
+  { color: "#7c3aed", color2: "#a78bfa", soft: "rgba(124,58,237,.12)" },
+  { color: "#be185d", color2: "#f472b6", soft: "rgba(190,24,93,.12)" },
+  { color: "#15803d", color2: "#4ade80", soft: "rgba(21,128,61,.12)" },
+  { color: "#b45309", color2: "#fbbf24", soft: "rgba(180,83,9,.12)" },
+  { color: "#0e7490", color2: "#22d3ee", soft: "rgba(14,116,144,.12)" }
+];
+
+function subjectTheme(subjectOrName) {
+  const name = typeof subjectOrName === "string" ? subjectOrName : subjectOrName?.name;
+  const key = String(name || "General");
+  let hash = 0;
+  for (let index = 0; index < key.length; index++) {
+    hash = (hash * 31 + key.charCodeAt(index)) >>> 0;
+  }
+  return SUBJECT_COLOR_PALETTE[hash % SUBJECT_COLOR_PALETTE.length];
 }
 
 function subjectThemeStyle(theme) {

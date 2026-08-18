@@ -106,34 +106,3 @@ body[data-theme="standard"] td input {
   border-color: rgba(15,23,42,.12);
   color: var(--text);
 }
-
-body[data-theme="standard"] .subject-card,
-body[data-theme="standard"] .standing-row,
-body[data-theme="standard"] .subject-row td,
-body[data-theme="standard"] .schedule-block {
-  --subject-color: var(--accent);
-  --subject-color-2: var(--accent2);
-  --subject-soft: rgba(79,70,229,.08);
-}
-
-body[data-theme="standard"] .subject-card:nth-child(3n + 1),
-body[data-theme="standard"] .subject-row:nth-child(3n + 1) td {
-  --subject-color: var(--accent3) !important;
-  --subject-color-2: var(--accent) !important;
-  --subject-soft: rgba(91,75,232,.10) !important;
-}
-
-body[data-theme="standard"] .subject-card:nth-child(3n + 2),
-body[data-theme="standard"] .subject-row:nth-child(3n + 2) td {
-  --subject-color: color-mix(in srgb, var(--teal) 78%, var(--charcoal) 22%) !important;
-  --subject-color-2: var(--teal) !important;
-  --subject-soft: rgba(13,148,136,.11) !important;
-}
-
-body[data-theme="standard"] .subject-card:nth-child(3n),
-body[data-theme="standard"] .subject-row:nth-child(3n) td {
-  --subject-color: color-mix(in srgb, var(--amber) 72%, var(--charcoal) 28%) !important;
-  --subject-color-2: var(--amber) !important;
-  --subject-soft: rgba(217,119,6,.11) !important;
-}
-

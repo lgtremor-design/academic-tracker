@@ -173,7 +173,7 @@ function renderTasks() {
     return `
       <tr class="${rowClass}">
         <td>${index + 1}</td>
-        <td>${escapeHtml(task.subjectName || "-")}</td>
+        <td><strong class="task-subject-label" style="color:${subjectTheme(task.subjectName).color};">${escapeHtml(task.subjectName || "-")}</strong></td>
         <td>
           <div class="task-desc">${escapeHtml(task.description)}</div>
           ${taskLinkMarkup(task)}
@@ -209,7 +209,7 @@ function renderDoneTasks() {
   tbody.innerHTML = doneTasks.map((task, index) => `
     <tr class="done-row">
       <td>${index + 1}</td>
-      <td>${escapeHtml(task.subjectName || "-")}</td>
+      <td><strong class="task-subject-label" style="color:${subjectTheme(task.subjectName).color};">${escapeHtml(task.subjectName || "-")}</strong></td>
       <td>${escapeHtml(task.description)} ${taskLinkMarkup(task)}</td>
       <td>${badge("Completed", "green")}</td>
       <td class="table-actions">
@@ -345,7 +345,7 @@ function renderUpcomingTasks() {
     const cls = isDone ? "done" : days < 0 ? "overdue" : days <= 1 ? "urgent" : days <= 3 ? "high" : days <= 7 ? "medium" : "low";
     return `
       <div class="deadline-card ${cls}">
-        <div class="dc-subject">${escapeHtml(task.subjectName || "General")}</div>
+        <div class="dc-subject" style="color:${subjectTheme(task.subjectName).color};">${escapeHtml(task.subjectName || "General")}</div>
         <div class="dc-desc">${escapeHtml(task.description)}</div>
         <div class="dc-days">${isDone ? "Completed" : formatDaysLabel(days)}</div>
         ${taskLinkMarkup(task, "dc-link")}
@@ -416,7 +416,7 @@ function renderDashboardAbsences() {
     return `
       <div class="absence-item absence-${level}">
         <div>
-          <strong>${escapeHtml(subject.name)}</strong>
+          <strong style="color:${subjectTheme(subject.name).color};">${escapeHtml(subject.name)}</strong>
           <span>${absences} / ${MAX_ABSENCES} absences used</span>
           <div class="absence-meter"><span style="width:${Math.min(100, ratio * 100)}%;"></span></div>
         </div>

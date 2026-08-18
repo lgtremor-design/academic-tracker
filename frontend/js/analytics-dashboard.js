@@ -314,7 +314,7 @@ function renderGradeChart() {
     return `
       <div class="standing-row" style="${subjectThemeStyle(theme)}" title="${escapeAttr(subject.name)}: ${format2(grade)} / ${format2(equivalent, 5)}">
         <div class="standing-line">
-          <div class="standing-name">${escapeHtml(subject.name || "Unnamed Subject")}</div>
+          <div class="standing-name" style="color:${theme.color};">${escapeHtml(subject.name || "Unnamed Subject")}</div>
           <div class="standing-grade">${displayGrade}</div>
         </div>
         <div class="standing-progress">
@@ -337,7 +337,7 @@ function renderDashboardAbsences() {
   container.innerHTML = subjects.map((subject, index) => `
     <div class="absence-item">
       <div>
-        <strong>${escapeHtml(subject.name)}</strong>
+        <strong style="color:${subjectTheme(subject.name).color};">${escapeHtml(subject.name)}</strong>
         <span>${safeNumber(subject.absences)} recorded absence${safeNumber(subject.absences) === 1 ? "" : "s"}</span>
       </div>
       <input id="dashAbsence-${index}" type="number" min="0" value="${safeNumber(subject.absences)}" onchange="saveDashboardAbsence(${index})">

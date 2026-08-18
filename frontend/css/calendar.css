@@ -11,8 +11,8 @@
 .calendar-cell:not(.muted):hover { border-color: var(--border2); background: var(--surface3); }
 .calendar-cell.has-deadlines { background: var(--accent-dim); border-color: var(--border2); }
 .calendar-day { color: var(--text); font-weight: 800; font-size: .8rem; margin-bottom: 5px; }
-.calendar-task { display: grid; gap: 2px; margin-top: 4px; padding: 5px 7px; border-radius: 7px; background: rgba(var(--accent-rgb),.1); color: var(--text2); font-size: .67rem; }
-.calendar-task strong { color: var(--accent); }
+.calendar-task { display: grid; gap: 2px; margin-top: 4px; padding: 5px 7px; border-radius: 7px; background: var(--subject-soft, rgba(var(--accent-rgb),.1)); border-left: 3px solid var(--subject-color, var(--accent)); color: var(--text2); font-size: .67rem; }
+.calendar-task strong { color: var(--subject-color, var(--accent)); }
 .calendar-badge { display: inline-grid; place-items: center; min-width: 17px; height: 17px; margin-left: 4px; padding: 0 5px; border-radius: 999px; color: #fff; background: var(--accent); font-size: .56rem; font-weight: 800; vertical-align: top; }
 .calendar-details { display: grid; gap: 7px; margin-top: 10px; }
 .calendar-detail-card { padding: 10px 12px; border: 1.5px solid var(--border); border-radius: 10px; background: var(--surface); }
