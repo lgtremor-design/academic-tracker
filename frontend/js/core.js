@@ -9,6 +9,7 @@ const API_BASE = "http://127.0.0.1:8080";
 
 let subjects = [];
 let tasks = [];
+let events = [];
 let analytics = null;
 let toastTimer = null;
 let calendarCursor = new Date();
@@ -704,6 +705,16 @@ async function api(path, options = {}) {
   }
 
   return data;
+}
+
+async function loadEvents() {
+  try {
+    events = await api("/events");
+    renderCalendar();
+  } catch (err) {
+    console.error(err);
+    events = [];
+  }
 }
 
 /* ==========================================================

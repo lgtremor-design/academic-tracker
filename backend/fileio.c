@@ -24,7 +24,8 @@
    ───────────────────────────────────────────────────────────── */
 
 void saveData(Subject subjects[], int subjectCount,
-              Task    tasks[],   int taskCount) {
+              Task    tasks[],   int taskCount,
+              CalendarEvent events[], int eventCount) {
 
     /* Open the save file where all subjects and tasks are stored. */
     FILE *fp = fopen(DATA_FILE, "w");
@@ -134,6 +135,28 @@ void saveData(Subject subjects[], int subjectCount,
         fprintf(fp, "      \"hour\": %d,\n",            t->hour);
         fprintf(fp, "      \"minute\": %d\n",           t->minute);
         fprintf(fp, "    }%s\n", (i < taskCount - 1) ? "," : "");
+    }
+    fprintf(fp, "  ],\n");
+
+    /* ── calendar events array ── */
+    fprintf(fp, "  \"events\": [\n");
+    for (int i = 0; i < eventCount; i++) {
+        CalendarEvent *event = &events[i];
+        char eTitle[256];
+        char eNote[512];
+        char eColor[32];
+        jsonEscape(event->title, eTitle, sizeof(eTitle));
+        jsonEscape(event->note, eNote, sizeof(eNote));
+        jsonEscape(event->color, eColor, sizeof(eColor));
+        fprintf(fp, "    {\n");
+        fprintf(fp, "      \"id\": %d,\n", event->id);
+        fprintf(fp, "      \"title\": \"%s\",\n", eTitle);
+        fprintf(fp, "      \"note\": \"%s\",\n", eNote);
+        fprintf(fp, "      \"year\": %d,\n", event->year);
+        fprintf(fp, "      \"month\": %d,\n", event->month);
+        fprintf(fp, "      \"day\": %d,\n", event->day);
+        fprintf(fp, "      \"color\": \"%s\"\n", eColor);
+        fprintf(fp, "    }%s\n", (i < eventCount - 1) ? "," : "");
     }
     fprintf(fp, "  ]\n");
     fprintf(fp, "}\n");
@@ -435,11 +458,46 @@ static const char *parseTask(const char *start, const char *end, Task *t) {
     return end + 1;
 }
 
+/* Parse one calendar event object. Returns pointer past '}'. */
+static const char *parseEvent(const char *start, const char *end, CalendarEvent *event) {
+    initCalendarEvent(event);
+    const char *p;
+
+#define LOAD_ESTR(key, field, maxlen)                     \
+    p = findKey(start, key);                              \
+    if (p && p < end) {                                   \
+        p = skipWS(p);                                    \
+        readStr(p, event->field, maxlen);                 \
+    }
+
+#define LOAD_EINT(key, field)                             \
+    p = findKey(start, key);                              \
+    if (p && p < end) {                                   \
+        p = skipWS(p);                                    \
+        readInt(p, &event->field);                        \
+    }
+
+    LOAD_EINT("id", id)
+    LOAD_ESTR("title", title, sizeof(event->title))
+    LOAD_ESTR("note", note, sizeof(event->note))
+    LOAD_EINT("year", year)
+    LOAD_EINT("month", month)
+    LOAD_EINT("day", day)
+    LOAD_ESTR("color", color, sizeof(event->color))
+
+#undef LOAD_ESTR
+#undef LOAD_EINT
+
+    return end + 1;
+}
+
 /* ── Main load function ── */
 void loadData(Subject subjects[], int *subjectCount,
-              Task    tasks[],   int *taskCount) {
+              Task    tasks[],   int *taskCount,
+              CalendarEvent events[], int *eventCount) {
     *subjectCount = 0;
     *taskCount    = 0;
+    *eventCount   = 0;
 
     FILE *fp = fopen(DATA_FILE, "r");
     if (!fp) {
@@ -518,7 +576,35 @@ void loadData(Subject subjects[], int *subjectCount,
         }
     }
 
+    /* ── Parse calendar events array ── */
+    const char *eventsStart = strstr(buf, "\"events\":");
+    if (eventsStart) {
+        eventsStart = strchr(eventsStart, '[');
+        if (eventsStart) {
+            eventsStart++;
+            const char *cur = eventsStart;
+            while (*eventCount < MAX_EVENTS) {
+                cur = skipWS(cur);
+                if (*cur == ']') break;
+                if (*cur != '{') { cur++; continue; }
+
+                int depth = 0;
+                const char *objStart = cur;
+                const char *objEnd = cur;
+                for (const char *q = cur; *q; q++) {
+                    if (*q == '{') depth++;
+                    else if (*q == '}') { depth--; if (depth == 0) { objEnd = q; break; } }
+                }
+                parseEvent(objStart + 1, objEnd, &events[*eventCount]);
+                (*eventCount)++;
+                cur = objEnd + 1;
+                cur = skipWS(cur);
+                if (*cur == ',') cur++;
+            }
+        }
+    }
+
     free(buf);
-    printf("[fileio] Loaded %d subject(s) and %d task(s) from %s\n",
-           *subjectCount, *taskCount, DATA_FILE);
+    printf("[fileio] Loaded %d subject(s), %d task(s), and %d event(s) from %s\n",
+           *subjectCount, *taskCount, *eventCount, DATA_FILE);
 }

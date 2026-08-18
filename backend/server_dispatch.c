@@ -102,6 +102,17 @@ void dispatchRequest(SOCKET client, char *request, int reqLen) {
         handleDeleteTask(client, path); return;
     }
 
+    /* Send, create, or delete custom calendar events. */
+    if (strcmp(method, "GET") == 0 && strcmp(path, "/events") == 0) {
+        handleGetEvents(client); return;
+    }
+    if (strcmp(method, "POST") == 0 && strcmp(path, "/events") == 0) {
+        handlePostEvent(client, body); return;
+    }
+    if (strcmp(method, "DELETE") == 0 && strncmp(path, "/events/", 8) == 0) {
+        handleDeleteEvent(client, path); return;
+    }
+
     /* Send the analytics page data. */
     if (strcmp(method, "GET") == 0 && strcmp(path, "/analytics") == 0) {
         handleGetAnalytics(client); return;

@@ -10,6 +10,7 @@
 /* Maximum number of subjects and tasks */
 #define MAX_SUBJECTS  50
 #define MAX_TASKS     200
+#define MAX_EVENTS    200
 
 /* Maximum number of scores allowed */
 #define MAX_SCORES    20

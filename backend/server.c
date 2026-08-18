@@ -12,7 +12,10 @@ Subject *g_subjects;
 int     *g_subjectCount;
 Task    *g_tasks;
 int     *g_taskCount;
+CalendarEvent *g_events;
+int     *g_eventCount;
 int      g_nextTaskId = 1;
+int      g_nextEventId = 1;
 
 void refreshNextTaskId(void) {
     g_nextTaskId = 1;
@@ -20,17 +23,28 @@ void refreshNextTaskId(void) {
         if (g_tasks[i].id >= g_nextTaskId) g_nextTaskId = g_tasks[i].id + 1;
     }
 }
+void refreshNextEventId(void) {
+    g_nextEventId = 1;
+    for (int i = 0; i < *g_eventCount; i++) {
+        if (g_events[i].id >= g_nextEventId) g_nextEventId = g_events[i].id + 1;
+    }
+}
+
 void runServer(Subject subjects[], int *subjectCount,
-               Task    tasks[],   int *taskCount) {
+               Task    tasks[],   int *taskCount,
+               CalendarEvent events[], int *eventCount) {
 
     /* Remember where the subject and task lists are kept. */
     g_subjects      = subjects;
     g_subjectCount  = subjectCount;
     g_tasks         = tasks;
     g_taskCount     = taskCount;
+    g_events        = events;
+    g_eventCount    = eventCount;
 
     /* Make sure the next task ID does not repeat an old one. */
     refreshNextTaskId();
+    refreshNextEventId();
 
 /* â”€â”€ Winsock init â”€â”€ */
 #ifdef _WIN32

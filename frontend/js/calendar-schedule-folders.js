@@ -20,14 +20,22 @@ function getTasksForDate(year, month, day) {
   );
 }
 
+function getEventsForDate(year, month, day) {
+  return events.filter(calendarEvent =>
+    safeNumber(calendarEvent.year) === year &&
+    safeNumber(calendarEvent.month) === month &&
+    safeNumber(calendarEvent.day) === day
+  );
+}
+
 function formatTaskTime(task) {
   const hour = safeNumber(task.hour, 0);
   const minute = safeNumber(task.minute, 0);
   return `${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}`;
 }
 
-function calendarDeadlineMarkup(dayTasks) {
-  if (!dayTasks.length) return "";
+function calendarDeadlineMarkup(dayTasks, dayEvents = []) {
+  if (!dayTasks.length && !dayEvents.length) return "";
   const visible = sortTasksForView(dayTasks).slice(0, 2);
   const extra = dayTasks.length - visible.length;
   return `
@@ -44,6 +52,14 @@ function calendarDeadlineMarkup(dayTasks) {
       }).join("")}
       ${extra > 0 ? `<div class="calendar-more">+${extra} more</div>` : ""}
     </div>
+    <div class="calendar-events">
+      ${dayEvents.map(calendarEvent => `
+        <button type="button" class="calendar-event" style="--event-color:${escapeAttr(calendarEvent.color || "#3b82f6")}" onclick="openCalendarEvent(event, ${safeNumber(calendarEvent.id)})" title="${escapeAttr(calendarEvent.title)}">
+          <span class="calendar-event-dot"></span>
+          <span>${escapeHtml(calendarEvent.title)}</span>
+        </button>
+      `).join("")}
+    </div>
   `;
 }
 
@@ -57,11 +73,13 @@ function renderCalendarMarkup() {
 
   for (let day = 1; day <= daysInMonth; day++) {
     const dayTasks = getTasksForDate(year, month, day);
-    const hasDeadlines = dayTasks.length > 0;
+    const dayEvents = getEventsForDate(year, month, day);
+    const itemCount = dayTasks.length + dayEvents.length;
+    const hasDeadlines = itemCount > 0;
     cells.push(`
-      <div class="calendar-cell ${hasDeadlines ? "has-deadlines" : ""}" onclick="openDeadlineModal(${year}, ${month}, ${day})" title="View deadlines for this date">
-        <div class="calendar-day">${day}${hasDeadlines ? `<span class="calendar-badge">${dayTasks.length}</span>` : ""}</div>
-        ${calendarDeadlineMarkup(dayTasks)}
+      <div class="calendar-cell ${hasDeadlines ? "has-deadlines" : ""}" onclick="openDeadlineModal(${year}, ${month}, ${day})" title="View calendar items for this date">
+        <div class="calendar-day">${day}${hasDeadlines ? `<span class="calendar-badge">${itemCount}</span>` : ""}</div>
+        ${calendarDeadlineMarkup(dayTasks, dayEvents)}
       </div>
     `);
   }
@@ -83,6 +101,76 @@ function renderCalendar() {
   });
 }
 
+function setCalendarEventColor(color) {
+  const picker = $("calendarEventColor");
+  if (picker) picker.value = color;
+}
+
+async function addCalendarEvent(formEvent) {
+  if (formEvent) formEvent.preventDefault();
+  const title = $("calendarEventTitle")?.value.trim();
+  const date = $("calendarEventDate")?.value;
+  const note = $("calendarEventNote")?.value.trim() || "";
+  const color = $("calendarEventColor")?.value || "#3b82f6";
+  if (!title || !date) {
+    showToast("Enter an event title and date", "warn");
+    return;
+  }
+
+  const [year, month, day] = date.split("-").map(Number);
+  try {
+    events = await api("/events", {
+      method: "POST",
+      body: JSON.stringify({ title, note, year, month, day, color })
+    });
+    $("calendarEventForm")?.reset();
+    setCalendarEventColor("#3b82f6");
+    renderCalendar();
+    showToast("Calendar event added");
+  } catch (err) {
+    showToast("Unable to add calendar event: " + err.message, "err");
+  }
+}
+
+function openCalendarEvent(clickEvent, eventId) {
+  clickEvent?.stopPropagation();
+  const calendarEvent = events.find(item => safeNumber(item.id) === safeNumber(eventId));
+  const popover = $("calendarEventPopover");
+  const title = $("calendarEventPopoverTitle");
+  const note = $("calendarEventPopoverNote");
+  if (!calendarEvent || !popover || !title || !note) return;
+
+  popover.dataset.eventId = String(calendarEvent.id);
+  popover.style.setProperty("--event-color", calendarEvent.color || "#3b82f6");
+  title.textContent = calendarEvent.title;
+  note.textContent = calendarEvent.note || "No note added.";
+  popover.classList.remove("hide");
+}
+
+function closeCalendarEventPopover(clickEvent) {
+  if (clickEvent && clickEvent.target !== clickEvent.currentTarget) return;
+  $("calendarEventPopover")?.classList.add("hide");
+}
+
+async function deleteCalendarEvent() {
+  const popover = $("calendarEventPopover");
+  const eventId = popover?.dataset.eventId;
+  if (eventId) await deleteCalendarEventById(eventId);
+}
+
+async function deleteCalendarEventById(eventId) {
+  if (!eventId || !confirm("Delete this calendar event?")) return;
+  const popover = $("calendarEventPopover");
+  try {
+    events = await api(`/events/${eventId}`, { method: "DELETE" });
+    popover?.classList.add("hide");
+    renderCalendar();
+    showToast("Calendar event deleted");
+  } catch (err) {
+    showToast("Unable to delete calendar event: " + err.message, "err");
+  }
+}
+
 function openDeadlineModal(year, month, day) {
   const modal = $("deadlineModal");
   const title = $("deadlineModalTitle");
@@ -91,6 +179,7 @@ function openDeadlineModal(year, month, day) {
 
   const date = new Date(year, month - 1, day);
   const dayTasks = getTasksForDate(year, month, day);
+  const dayEvents = getEventsForDate(year, month, day);
   title.textContent = date.toLocaleDateString(undefined, {
     weekday: "long",
     month: "long",
@@ -98,8 +187,8 @@ function openDeadlineModal(year, month, day) {
     year: "numeric"
   });
 
-  if (!dayTasks.length) {
-    body.innerHTML = `<div class="empty-state">No deadlines on this day.</div>`;
+  if (!dayTasks.length && !dayEvents.length) {
+    body.innerHTML = `<div class="empty-state">No calendar items on this day.</div>`;
   } else {
     body.innerHTML = dayTasks.map(task => `
       <div class="deadline-item">
@@ -109,6 +198,15 @@ function openDeadlineModal(year, month, day) {
         </div>
         <p>${escapeHtml(task.description || "Untitled task")}</p>
         <div style="margin-top:8px;">${badge(escapeHtml(task.status || "Not Started"), task.status === "Done" ? "green" : task.status === "In Progress" ? "blue" : "amber")}</div>
+      </div>
+    `).join("") + dayEvents.map(calendarEvent => `
+      <div class="deadline-item calendar-event-detail" style="--event-color:${escapeAttr(calendarEvent.color || "#3b82f6")}">
+        <div class="deadline-item-head">
+          <strong>${escapeHtml(calendarEvent.title)}</strong>
+          <span class="calendar-event-label">Event</span>
+        </div>
+        <p>${escapeHtml(calendarEvent.note || "No note added.")}</p>
+        <button class="btn btn-danger btn-sm" onclick="deleteCalendarEventById(${safeNumber(calendarEvent.id)})">Delete Event</button>
       </div>
     `).join("");
   }

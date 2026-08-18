@@ -26,6 +26,7 @@
 #include "server.h"
 #include "subject.h"
 #include "task.h"
+#include "event.h"
 #include "analytics.h"
 #include "fileio.h"
 #include "config.h"
@@ -34,9 +35,13 @@ extern Subject *g_subjects;
 extern int     *g_subjectCount;
 extern Task    *g_tasks;
 extern int     *g_taskCount;
+extern CalendarEvent *g_events;
+extern int     *g_eventCount;
 extern int      g_nextTaskId;
+extern int      g_nextEventId;
 
 void refreshNextTaskId(void);
+void refreshNextEventId(void);
 
 const char *jsonFindKeyValue(const char *json, const char *key);
 int jsonGetStr(const char *json, const char *key, char *dst, int dstlen);
@@ -65,6 +70,9 @@ void handlePostTask(SOCKET client, const char *body);
 void handlePutTaskStatus(SOCKET client, const char *path, const char *body);
 void handlePutTask(SOCKET client, const char *path, const char *body);
 void handleDeleteTask(SOCKET client, const char *path);
+void handleGetEvents(SOCKET client);
+void handlePostEvent(SOCKET client, const char *body);
+void handleDeleteEvent(SOCKET client, const char *path);
 void handlePostStudyHours(SOCKET client, const char *body);
 void handleGetBackup(SOCKET client);
 void handlePostBackup(SOCKET client, const char *body);

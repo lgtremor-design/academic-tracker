@@ -13,6 +13,7 @@
 
 #include "subject.h"   /* Subject struct and MAX_* constants needed by saveData/loadData. */
 #include "task.h"      /* Task struct needed by saveData/loadData.                        */
+#include "event.h"     /* CalendarEvent struct needed by saveData/loadData.              */
 
 /* ── Function prototypes ────────────────────────────────────────────────── */
 
@@ -30,7 +31,8 @@
  *   taskCount     — number of valid entries in tasks[].
  */
 void saveData(Subject subjects[], int subjectCount,
-              Task    tasks[],   int taskCount);
+              Task    tasks[],   int taskCount,
+              CalendarEvent events[], int eventCount);
 
 /*
  * loadData()
@@ -46,6 +48,7 @@ void saveData(Subject subjects[], int subjectCount,
  *   taskCount     — output; set to the number of tasks loaded.
  */
 void loadData(Subject subjects[], int *subjectCount,
-              Task    tasks[],   int *taskCount);
+              Task    tasks[],   int *taskCount,
+              CalendarEvent events[], int *eventCount);
 
 #endif /* FILEIO_H */

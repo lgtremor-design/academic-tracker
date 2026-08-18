@@ -16,6 +16,7 @@ async function initialize() {
   await checkServer();
   await loadSubjects();
   await loadTasks();
+  await loadEvents();
   updateDashboard();
   renderCalendar();
   renderSchedule();

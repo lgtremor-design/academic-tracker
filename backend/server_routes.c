@@ -32,7 +32,7 @@ void handlePostSubject(SOCKET client, const char *body) {
     strncpy(s->notes, notes, MAX_NOTES - 1);
     s->units = units > 0.0f ? units : 3.0f;
 
-    saveData(g_subjects, *g_subjectCount, g_tasks, *g_taskCount);
+    saveData(g_subjects, *g_subjectCount, g_tasks, *g_taskCount, g_events, *g_eventCount);
 
     char *buf = (char *)malloc(SEND_BUF);
     if (!buf) { send400(client, "OOM"); return; }
@@ -54,7 +54,7 @@ void handlePostScore(SOCKET client, const char *body) {
     if (idx == -1) { send400(client, "Subject not found"); return; }
 
     addScoreToSubject(&g_subjects[idx], score);
-    saveData(g_subjects, *g_subjectCount, g_tasks, *g_taskCount);
+    saveData(g_subjects, *g_subjectCount, g_tasks, *g_taskCount, g_events, *g_eventCount);
 
     char *buf = (char *)malloc(SEND_BUF);
     if (!buf) { send400(client, "OOM"); return; }
@@ -105,7 +105,7 @@ void handlePostCriteria(SOCKET client, const char *body) {
     if (jsonGetFloat(body, "units",            &f)) s->units            = f > 0.0f ? f : s->units;
 
     computeWeightedGrade(s);
-    saveData(g_subjects, *g_subjectCount, g_tasks, *g_taskCount);
+    saveData(g_subjects, *g_subjectCount, g_tasks, *g_taskCount, g_events, *g_eventCount);
 
     char *buf = (char *)malloc(SEND_BUF);
     if (!buf) { send400(client, "OOM"); return; }
@@ -147,7 +147,7 @@ void handlePostSubjectMeta(SOCKET client, const char *body) {
         s->absences = iv;
     }
 
-    saveData(g_subjects, *g_subjectCount, g_tasks, *g_taskCount);
+    saveData(g_subjects, *g_subjectCount, g_tasks, *g_taskCount, g_events, *g_eventCount);
 
     char *buf = (char *)malloc(SEND_BUF);
     if (!buf) { send400(client, "OOM"); return; }
@@ -178,7 +178,7 @@ void handleDeleteSubject(SOCKET client, const char *path) {
     }
     *g_taskCount = writeIndex;
 
-    saveData(g_subjects, *g_subjectCount, g_tasks, *g_taskCount);
+    saveData(g_subjects, *g_subjectCount, g_tasks, *g_taskCount, g_events, *g_eventCount);
 
     char *buf = (char *)malloc(SEND_BUF);
     if (!buf) { send400(client, "OOM"); return; }
@@ -227,7 +227,7 @@ void handlePostTask(SOCKET client, const char *body) {
 
     (*g_taskCount)++;
     sortTasksByDeadline(g_tasks, *g_taskCount);
-    saveData(g_subjects, *g_subjectCount, g_tasks, *g_taskCount);
+    saveData(g_subjects, *g_subjectCount, g_tasks, *g_taskCount, g_events, *g_eventCount);
 
     char *buf = (char *)malloc(SEND_BUF);
     if (!buf) { send400(client, "OOM"); return; }
@@ -258,7 +258,7 @@ void handlePutTaskStatus(SOCKET client, const char *path, const char *body) {
     }
     if (!found) { send404(client); return; }
 
-    saveData(g_subjects, *g_subjectCount, g_tasks, *g_taskCount);
+    saveData(g_subjects, *g_subjectCount, g_tasks, *g_taskCount, g_events, *g_eventCount);
 
     char *buf = (char *)malloc(SEND_BUF);
     if (!buf) { send400(client, "OOM"); return; }
@@ -309,7 +309,7 @@ void handlePutTask(SOCKET client, const char *path, const char *body) {
     if (jsonGetInt(body, "minute", &iv)) task->minute = iv;
 
     sortTasksByDeadline(g_tasks, *g_taskCount);
-    saveData(g_subjects, *g_subjectCount, g_tasks, *g_taskCount);
+    saveData(g_subjects, *g_subjectCount, g_tasks, *g_taskCount, g_events, *g_eventCount);
 
     char *buf = (char *)malloc(SEND_BUF);
     if (!buf) { send400(client, "OOM"); return; }
@@ -336,11 +336,83 @@ void handleDeleteTask(SOCKET client, const char *path) {
     }
     (*g_taskCount)--;
 
-    saveData(g_subjects, *g_subjectCount, g_tasks, *g_taskCount);
+    saveData(g_subjects, *g_subjectCount, g_tasks, *g_taskCount, g_events, *g_eventCount);
 
     char *buf = (char *)malloc(SEND_BUF);
     if (!buf) { send400(client, "OOM"); return; }
     allTasksToJSON(g_tasks, *g_taskCount, buf, SEND_BUF);
+    send200(client, buf);
+    free(buf);
+}
+
+/* GET /events */
+void handleGetEvents(SOCKET client) {
+    char *buf = (char *)malloc(SEND_BUF);
+    if (!buf) { send400(client, "OOM"); return; }
+    if (allEventsToJSON(g_events, *g_eventCount, buf, SEND_BUF) < 0) {
+        free(buf); send400(client, "Response too large"); return;
+    }
+    send200(client, buf);
+    free(buf);
+}
+
+/* POST /events body: {title, note, year, month, day, color} */
+void handlePostEvent(SOCKET client, const char *body) {
+    if (*g_eventCount >= MAX_EVENTS) { send400(client, "Event list full"); return; }
+
+    CalendarEvent *event = &g_events[*g_eventCount];
+    initCalendarEvent(event);
+    event->id = g_nextEventId++;
+
+    jsonGetStr(body, "title", event->title, sizeof(event->title));
+    jsonGetStr(body, "note", event->note, sizeof(event->note));
+    jsonGetStr(body, "color", event->color, sizeof(event->color));
+    jsonGetInt(body, "year", &event->year);
+    jsonGetInt(body, "month", &event->month);
+    jsonGetInt(body, "day", &event->day);
+
+    if (event->title[0] == '\0') { send400(client, "Missing title"); return; }
+    if (event->year < 1 || event->month < 1 || event->month > 12 || event->day < 1 || event->day > 31) {
+        send400(client, "Invalid event date"); return;
+    }
+    if (event->color[0] != '#' || strlen(event->color) != 7) {
+        send400(client, "Invalid event color"); return;
+    }
+
+    (*g_eventCount)++;
+    saveData(g_subjects, *g_subjectCount, g_tasks, *g_taskCount, g_events, *g_eventCount);
+
+    char *buf = (char *)malloc(SEND_BUF);
+    if (!buf) { send400(client, "OOM"); return; }
+    if (allEventsToJSON(g_events, *g_eventCount, buf, SEND_BUF) < 0) {
+        free(buf); send400(client, "Response too large"); return;
+    }
+    send201(client, buf);
+    free(buf);
+}
+
+/* DELETE /events/{id} */
+void handleDeleteEvent(SOCKET client, const char *path) {
+    int id = 0;
+    if (sscanf(path, "/events/%d", &id) != 1) {
+        send400(client, "Invalid event id"); return;
+    }
+
+    int index = -1;
+    for (int i = 0; i < *g_eventCount; i++) {
+        if (g_events[i].id == id) { index = i; break; }
+    }
+    if (index == -1) { send404(client); return; }
+
+    for (int i = index; i < *g_eventCount - 1; i++) {
+        g_events[i] = g_events[i + 1];
+    }
+    (*g_eventCount)--;
+    saveData(g_subjects, *g_subjectCount, g_tasks, *g_taskCount, g_events, *g_eventCount);
+
+    char *buf = (char *)malloc(SEND_BUF);
+    if (!buf) { send400(client, "OOM"); return; }
+    allEventsToJSON(g_events, *g_eventCount, buf, SEND_BUF);
     send200(client, buf);
     free(buf);
 }
@@ -362,7 +434,7 @@ void handlePostStudyHours(SOCKET client, const char *body) {
     /* Add timer hours to actual studied time, not to the target hours. */
     g_subjects[idx].trackedStudyHours += hours;
 
-    saveData(g_subjects, *g_subjectCount, g_tasks, *g_taskCount);
+    saveData(g_subjects, *g_subjectCount, g_tasks, *g_taskCount, g_events, *g_eventCount);
 
     char *buf = (char *)malloc(SEND_BUF);
     if (!buf) { send400(client, "OOM"); return; }
@@ -378,26 +450,29 @@ void handlePostStudyHours(SOCKET client, const char *body) {
 void handleGetBackup(SOCKET client) {
     char *subjectJson = (char *)malloc(SEND_BUF);
     char *taskJson = (char *)malloc(SEND_BUF);
+    char *eventJson = (char *)malloc(SEND_BUF);
     char *buf = (char *)malloc(SEND_BUF);
-    if (!subjectJson || !taskJson || !buf) {
-        free(subjectJson); free(taskJson); free(buf);
+    if (!subjectJson || !taskJson || !eventJson || !buf) {
+        free(subjectJson); free(taskJson); free(eventJson); free(buf);
         send400(client, "OOM");
         return;
     }
 
     if (allSubjectsToJSON(g_subjects, *g_subjectCount, subjectJson, SEND_BUF) < 0 ||
-        allTasksToJSON(g_tasks, *g_taskCount, taskJson, SEND_BUF) < 0) {
-        free(subjectJson); free(taskJson); free(buf);
+        allTasksToJSON(g_tasks, *g_taskCount, taskJson, SEND_BUF) < 0 ||
+        allEventsToJSON(g_events, *g_eventCount, eventJson, SEND_BUF) < 0) {
+        free(subjectJson); free(taskJson); free(eventJson); free(buf);
         send400(client, "Response too large");
         return;
     }
 
     snprintf(buf, SEND_BUF,
-             "{\"app\":\"Academic Tracker\",\"version\":1,\"subjects\":%s,\"tasks\":%s}",
-             subjectJson, taskJson);
+             "{\"app\":\"Academic Tracker\",\"version\":1,\"subjects\":%s,\"tasks\":%s,\"events\":%s}",
+             subjectJson, taskJson, eventJson);
     send200(client, buf);
     free(subjectJson);
     free(taskJson);
+    free(eventJson);
     free(buf);
 }
 
@@ -421,8 +496,9 @@ void handlePostBackup(SOCKET client, const char *body) {
     fwrite(body, 1, strlen(body), fp);
     fclose(fp);
 
-    loadData(g_subjects, g_subjectCount, g_tasks, g_taskCount);
+    loadData(g_subjects, g_subjectCount, g_tasks, g_taskCount, g_events, g_eventCount);
     refreshNextTaskId();
+    refreshNextEventId();
 
     handleGetBackup(client);
 }

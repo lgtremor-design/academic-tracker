@@ -23,9 +23,11 @@
 
 #include "subject.h"
 #include "task.h"
+#include "event.h"
 
 /* ── Start blocking server loop ── */
 void runServer(Subject subjects[], int *subjectCount,
-               Task    tasks[],   int *taskCount);
+               Task    tasks[],   int *taskCount,
+               CalendarEvent events[], int *eventCount);
 
 #endif /* SERVER_H */
