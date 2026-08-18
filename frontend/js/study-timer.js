@@ -16,6 +16,24 @@ let _timerSessionLog  = [];     // [{subject, duration (hrs), time}] for display
 let _timerMode        = "free"; // selected study method
 let _pomodoroSessions = Number(localStorage.getItem("noviPomodoroSessions") || "0");
 
+function getTodayKey(subjectName) {
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = String(today.getMonth() + 1).padStart(2, "0");
+  const day = String(today.getDate()).padStart(2, "0");
+  return `studyToday_${subjectName}_${year}-${month}-${day}`;
+}
+
+function getTodayHours(subjectName) {
+  return Number.parseFloat(sessionStorage.getItem(getTodayKey(subjectName)) || "0") || 0;
+}
+
+function addTodayHours(subjectName, hours) {
+  const key = getTodayKey(subjectName);
+  const total = getTodayHours(subjectName) + hours;
+  sessionStorage.setItem(key, String(total));
+}
+
 const TIMER_MODES = {
   free: { label: "Free study", seconds: 0, hint: "Free study counts up until you stop it." },
   pomodoro: { label: "Pomodoro", seconds: 25 * 60, hint: "Pomodoro runs 25 minutes of focus, then take a 5 minute break." },
@@ -103,9 +121,8 @@ function _syncTimerCard() {
   }
 
   nameEl.textContent  = subject.name;
-  totalEl.textContent = getStudyTargetHours(subject) > 0
-    ? `${formatHours(getTrackedStudyHours(subject))} studied, ${formatHours(getRemainingStudyHours(subject))} left`
-    : `${formatHours(getTrackedStudyHours(subject))} studied`;
+  totalEl.innerHTML = `<span class="st-today-hours">Today: ${formatHours(getTodayHours(subject.name))} hrs</span>` +
+    `<span class="st-total-hours">Total: ${formatHours(getTrackedStudyHours(subject))} hrs studied</span>`;
   startBtn.disabled   = false;
 
   if (_timerInterval && _timerSubject === subjectName) {
@@ -189,6 +206,7 @@ async function stopStudyTimer(autoFinished = false) {
       method: "POST",
       body: JSON.stringify({ name: _timerSubject, hours })
     });
+    addTodayHours(_timerSubject, hours);
 
     // Log the session for display
     _timerSessionLog.unshift({
@@ -283,6 +301,7 @@ function _renderTimerSummary() {
   grid.innerHTML = subjects.map(s => {
     const target = getStudyTargetHours(s);
     const studied = getTrackedStudyHours(s);
+    const todayHours = getTodayHours(s.name);
     const pct = target > 0
       ? Math.min(100, (studied / target) * 100)
       : maxHours > 0
@@ -291,6 +310,7 @@ function _renderTimerSummary() {
     return `<div class="st-sum-card">
       <div class="st-sum-name" title="${s.name}">${s.name}</div>
       <div class="st-sum-hours">${formatHours(studied)} <span style="font-size:.75rem;font-weight:500;color:var(--text3)">studied</span></div>
+      <div class="st-sum-today">Today: ${formatHours(todayHours)} hrs</div>
       <div class="hint">${escapeHtml(studyProgressNote(s))}</div>
       <div class="st-sum-bar-bg"><div class="st-sum-bar-fill" style="width:${pct.toFixed(1)}%"></div></div>
     </div>`;
