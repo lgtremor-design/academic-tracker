@@ -35,6 +35,77 @@ function addTodayHours(subjectName, hours) {
   sessionStorage.setItem(key, String(total));
 }
 
+const STUDY_LOG_KEY = "noviStudyLog";
+const STUDY_LOG_MAX_DAYS = 180;
+
+function getLocalDateKey(date = new Date()) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return year + "-" + month + "-" + day;
+}
+
+function getStudyLog() {
+  try {
+    const raw = localStorage.getItem(STUDY_LOG_KEY);
+    const parsed = raw ? JSON.parse(raw) : [];
+    return Array.isArray(parsed)
+      ? parsed.filter(entry =>
+          entry &&
+          /^\d{4}-\d{2}-\d{2}$/.test(entry.date) &&
+          typeof entry.subject === "string" &&
+          Number.isFinite(Number(entry.hours)) &&
+          Number(entry.hours) > 0
+        )
+      : [];
+  } catch (_err) {
+    return [];
+  }
+}
+
+function addStudyLogEntry(date, subject, hours) {
+  const numericHours = Number(hours);
+  if (!date || !subject || !Number.isFinite(numericHours) || numericHours <= 0) return;
+
+  const cutoff = new Date();
+  cutoff.setHours(0, 0, 0, 0);
+  cutoff.setDate(cutoff.getDate() - (STUDY_LOG_MAX_DAYS - 1));
+  const cutoffKey = getLocalDateKey(cutoff);
+  const log = getStudyLog()
+    .concat({ date, subject, hours: numericHours })
+    .filter(entry => entry.date >= cutoffKey)
+    .sort((a, b) => a.date.localeCompare(b.date));
+
+  try {
+    localStorage.setItem(STUDY_LOG_KEY, JSON.stringify(log));
+  } catch (_err) {
+    // Keep session saving functional if browser storage is unavailable/full.
+  }
+}
+
+function _studyLogEntriesForDays(days = STUDY_LOG_MAX_DAYS) {
+  const count = Math.max(1, Math.floor(Number(days) || STUDY_LOG_MAX_DAYS));
+  const cutoff = new Date();
+  cutoff.setHours(0, 0, 0, 0);
+  cutoff.setDate(cutoff.getDate() - (count - 1));
+  const cutoffKey = getLocalDateKey(cutoff);
+  return getStudyLog().filter(entry => entry.date >= cutoffKey && entry.date <= getLocalDateKey());
+}
+
+function getStudyHoursByDate(days = STUDY_LOG_MAX_DAYS) {
+  return _studyLogEntriesForDays(days).reduce((totals, entry) => {
+    totals[entry.date] = (totals[entry.date] || 0) + Number(entry.hours);
+    return totals;
+  }, {});
+}
+
+function getStudyHoursBySubject(days = STUDY_LOG_MAX_DAYS) {
+  return _studyLogEntriesForDays(days).reduce((totals, entry) => {
+    totals[entry.subject] = (totals[entry.subject] || 0) + Number(entry.hours);
+    return totals;
+  }, {});
+}
+
 function toggleMiniTimer() {
   const mini = document.getElementById("miniTimer");
   if (!mini) return;
@@ -304,6 +375,7 @@ async function stopStudyTimer(autoFinished = false) {
       body: JSON.stringify({ name: savedName, hours })
     });
     addTodayHours(savedName, hours);
+    addStudyLogEntry(getLocalDateKey(), savedName, hours);
 
     const subjectData = subjects.find(s => s.name === savedName);
     if (subjectData) {
