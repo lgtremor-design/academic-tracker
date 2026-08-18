@@ -1,0 +1,64 @@
+/* ── Responsive ─────────────────────────────────────── */
+@media (max-width: 900px) {
+  body { padding: 0; }
+  header { position: static; width: auto; border-radius: 0; flex-direction: row; align-items: center; margin-bottom: 0; top: 0; left: 0; bottom: auto; }
+  nav { flex-direction: row; overflow-x: auto; }
+  .header-status { margin-top: 0; margin-left: auto; }
+  .portal-topbar, .tab-content { margin-left: 0; }
+  .portal-topbar { grid-template-columns: 1fr; gap: 10px; padding: 14px; }
+  .topbar-actions { justify-content: space-between; flex-wrap: wrap; }
+  .tab-content { padding: 12px 14px 32px; }
+  .profile-pill { width: max-content; }
+  .welcome-panel, .dashboard-main-grid, .dashboard-action-row, .progress-panel, .analytics-chart-panel, .hero { grid-template-columns: 1fr; }
+  .todo-card { margin-top: 0; }
+  .anime-hero-card { min-height: 260px; }
+  .anime-thumb-strip { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .anime-thumb, .luxury-swatch { width: 100%; height: 70px; }
+  .finance-grid { grid-template-columns: repeat(2, 1fr); }
+  .two-col { grid-template-columns: 1fr; }
+  .folder-grid-inner { grid-template-columns: 1fr; }
+  .calendar-weekdays, .calendar-days { grid-template-columns: repeat(7, minmax(32px, 1fr)); }
+  .calendar-cell { min-height: 52px; padding: 5px; }
+  .dashboard-calendar .calendar-weekdays, .dashboard-calendar .calendar-days { grid-template-columns: repeat(7, 1fr); }
+  .task-toolbar { grid-template-columns: 1fr; }
+  .standing-line { grid-template-columns: 1fr; gap: 4px; }
+  .deadline-modal { max-height: calc(100vh - 28px); }
+  .analytics-summary { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .bar-row { grid-template-columns: 112px 1fr 24px; }
+  .performance-line-chart { height: 210px; }
+}
+
+@media (max-width: 560px) {
+  header { padding: 14px; gap: 14px; }
+  .brand { min-width: 100%; }
+  nav { width: 100%; padding-bottom: 4px; }
+  .nav-link { flex: 0 0 auto; min-width: max-content; padding: 10px 12px; }
+  .nav-link::before { min-width: 18px; }
+  .portal-topbar { padding: 12px; }
+  .search-pill { min-width: 0; }
+  .page-header { flex-direction: column; align-items: stretch; }
+  .tbl-wrap { overflow-x: auto; }
+  table { min-width: 760px; }
+  .finance-card { min-height: 116px; }
+  .dashboard-action-row { gap: 14px; }
+  .calendar-cell { min-height: 46px; padding: 4px; }
+  .finance-grid, .analytics-summary { grid-template-columns: 1fr; }
+  .topbar-actions, .theme-switcher, .profile-pill { width: 100%; }
+  .theme-switcher { justify-content: space-between; }
+  .theme-switcher select { min-width: 0; flex: 1; }
+  .as-card { min-height: 92px; }
+  .bar-row { grid-template-columns: 1fr; gap: 6px; }
+  .trend-legend { display: grid; grid-template-columns: 1fr; }
+  .welcome-panel { padding: 22px; }
+  .anime-hero-card { min-height: 220px; }
+  .anime-bg-layer.layer-1 { width: 100vw; }
+  .anime-bg-layer.layer-2 { left: 0; width: 88vw; }
+  .anime-bg-layer.layer-3 { width: 72vw; }
+  .anime-bg-layer.layer-4 { right: 0; width: 82vw; }
+  .st-selector-row { align-items: stretch; }
+  .st-label, .st-select { width: 100%; max-width: none; }
+  .st-card { padding: 24px 18px; }
+  .st-clock { font-size: 2.45rem; }
+  .st-btn-row { flex-direction: column; }
+}
+

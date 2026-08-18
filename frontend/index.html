@@ -9,8 +9,18 @@
 <!-- This is the name shown on the browser tab. -->
 <title>Academic Tracker</title>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
-<!-- This loads the page design from style.css. -->
-<link rel="stylesheet" href="style.css"/>
+<!-- Styles are split by feature so each area is easier to find and edit. -->
+<link rel="stylesheet" href="css/base.css"/>
+<link rel="stylesheet" href="css/layout.css"/>
+<link rel="stylesheet" href="css/dashboard.css"/>
+<link rel="stylesheet" href="css/calendar.css"/>
+<link rel="stylesheet" href="css/components.css"/>
+<link rel="stylesheet" href="css/analytics.css"/>
+<link rel="stylesheet" href="css/schedule-folders-tasks.css"/>
+<link rel="stylesheet" href="css/responsive.css"/>
+<link rel="stylesheet" href="css/themes.css"/>
+<link rel="stylesheet" href="css/study-timer.css"/>
+<link rel="stylesheet" href="css/attachments.css"/>
 </head>
 <body>
 
@@ -607,6 +617,7 @@
 </div>
 
 
+<!-- ================= STUDY TIMER TAB ================= -->
 <div id="tab-studytimer" class="tab-content">
   <div class="page-header">
     <div>
@@ -630,26 +641,30 @@
     </select>
   </div>
 
-  <!-- Timer card -->
-  <div class="st-card" id="timerCard">
-    <div class="st-subject-name" id="timerSubjectName">No subject selected</div>
-    <div class="st-clock" id="timerDisplay">00:00:00</div>
-    <div class="st-mode-hint" id="timerModeHint">Free study counts up until you stop it.</div>
-    <div class="st-pomodoro-count" id="timerPomodoroCount">Pomodoros completed: 0</div>
-    <div class="st-total-row">
-      <span class="st-total-label">Study progress for this subject:</span>
-      <span class="st-total-val" id="timerTotalHours">0.00 hrs</span>
+  <div class="st-two-col">
+    <!-- Timer card -->
+    <div class="st-card" id="timerCard">
+      <div class="st-subject-name" id="timerSubjectName">No subject selected</div>
+      <div class="st-clock" id="timerDisplay">00:00:00</div>
+      <div class="st-mode-hint" id="timerModeHint">Free study counts up until you stop it.</div>
+      <div class="st-pomodoro-count" id="timerPomodoroCount">Pomodoros completed: 0</div>
+      <div class="st-total-row">
+        <span class="st-total-label">Study progress for this subject:</span>
+        <span class="st-total-val" id="timerTotalHours">0.00 hrs</span>
+      </div>
+      <div class="st-btn-row">
+        <button class="st-btn st-btn-start" id="timerStartBtn" onclick="startStudyTimer()" disabled>Start</button>
+        <button class="st-btn st-btn-stop hide" id="timerStopBtn" onclick="stopStudyTimer()">Stop &amp; Save</button>
+      </div>
+      <div class="st-session-log" id="timerSessionLog"></div>
     </div>
-    <div class="st-btn-row">
-      <button class="st-btn st-btn-start" id="timerStartBtn" onclick="startStudyTimer()" disabled>Start</button>
-      <button class="st-btn st-btn-stop hide" id="timerStopBtn" onclick="stopStudyTimer()">Stop &amp; Save</button>
-    </div>
-    <div class="st-session-log" id="timerSessionLog"></div>
-  </div>
 
-  <!-- All subjects hours summary -->
-  <div class="st-summary-title">All Subjects — Cumulative Study Hours</div>
-  <div id="timerSummaryGrid" class="st-summary-grid"></div>
+    <div class="st-summary-panel">
+      <!-- All subjects hours summary -->
+      <div class="st-summary-title">All Subjects — Cumulative Study Hours</div>
+      <div id="timerSummaryGrid" class="st-summary-grid"></div>
+    </div>
+  </div>
 </div>
 
 

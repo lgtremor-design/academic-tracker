@@ -1,0 +1,145 @@
+/* ═══════════════════════════════════════════
+   Study Timer tab
+   ═══════════════════════════════════════════ */
+.nav-link[data-tab="studytimer"] { --nav-color: var(--accent); --nav-color-2: var(--accent2); }
+.nav-link[data-tab="studytimer"]::before { content: "ST"; }
+
+/* Standard professional theme override */
+body[data-theme="standard"] {
+  color: var(--text);
+  background:
+    radial-gradient(circle at 85% 8%, rgba(139,123,255,.16), transparent 34%),
+    radial-gradient(circle at 18% 88%, rgba(34,197,94,.08), transparent 30%),
+    linear-gradient(135deg, #fff 0%, var(--bg) 42%, #F5F2FF 100%);
+}
+
+body[data-theme="standard"]::before,
+body[data-theme="standard"] .anime-theme-backdrop,
+body[data-theme="standard"] .anime-thumb-strip,
+body[data-theme="standard"] .anime-hero-card {
+  display: none;
+}
+
+body[data-theme="standard"] header,
+body[data-theme="standard"] .portal-topbar,
+body[data-theme="standard"] .card,
+body[data-theme="standard"] .chart-card,
+body[data-theme="standard"] .progress-ring,
+body[data-theme="standard"] .finance-card,
+body[data-theme="standard"] .dashboard-calendar,
+body[data-theme="standard"] .calendar-grid,
+body[data-theme="standard"] .deadline-card,
+body[data-theme="standard"] .subject-card,
+body[data-theme="standard"] .schedule-day,
+body[data-theme="standard"] .folder-card,
+body[data-theme="standard"] .as-card,
+body[data-theme="standard"] .an-card,
+body[data-theme="standard"] .profile-pill,
+body[data-theme="standard"] .theme-switcher {
+  background: var(--surface);
+  border-color: var(--border);
+  box-shadow: var(--shadow-xs);
+  backdrop-filter: none;
+}
+
+body[data-theme="standard"] .welcome-panel {
+  min-height: 164px;
+  grid-template-columns: 1fr 210px;
+  background:
+    radial-gradient(ellipse at 85% 10%, rgba(255,255,255,.18) 0%, transparent 42%),
+    radial-gradient(ellipse at 5% 90%, rgba(16,185,129,.2) 0%, transparent 38%),
+    linear-gradient(135deg, #6d5dfc 0%, #8b7cfd 55%, #4f46e5 100%);
+  border: 0;
+  box-shadow: var(--shadow-lg);
+}
+
+body[data-theme="standard"] .welcome-panel::after {
+  display: none;
+}
+
+body[data-theme="standard"] .standard-welcome-art {
+  display: block;
+}
+
+body[data-theme="standard"] .topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+body[data-theme="standard"] .nav-link[data-tab="dashboard"],
+body[data-theme="standard"] .nav-link[data-tab="subjects"],
+body[data-theme="standard"] .nav-link[data-tab="studytimer"] {
+  --nav-color: var(--accent);
+  --nav-color-2: var(--accent2);
+}
+
+body[data-theme="standard"] .nav-link[data-tab="tasks"],
+body[data-theme="standard"] .nav-link[data-tab="schedule"],
+body[data-theme="standard"] .nav-link[data-tab="folders"] {
+  --nav-color: var(--teal);
+  --nav-color-2: #14b8a6;
+}
+
+body[data-theme="standard"] .nav-link[data-tab="calendar"],
+body[data-theme="standard"] .nav-link[data-tab="analytics"] {
+  --nav-color: var(--amber);
+  --nav-color-2: #f59e0b;
+}
+
+body[data-theme="standard"] .page-title,
+body[data-theme="standard"] .section-title,
+body[data-theme="standard"] .mini-title,
+body[data-theme="standard"] .card-title {
+  color: var(--text);
+}
+
+body[data-theme="standard"] .section-action,
+body[data-theme="standard"] .card-sub,
+body[data-theme="standard"] .page-sub {
+  color: var(--text3);
+}
+
+body[data-theme="standard"] .finance-icon,
+body[data-theme="standard"] .card-icon,
+body[data-theme="standard"] .as-icon,
+body[data-theme="standard"] .an-icon {
+  color: var(--accent);
+  background: rgba(79,70,229,.08);
+  border-color: rgba(79,70,229,.14);
+}
+
+body[data-theme="standard"] .finance-card:nth-child(2) .finance-icon,
+body[data-theme="standard"] .card-icon.ci-green {
+  color: var(--teal);
+  background: rgba(15,118,110,.08);
+  border-color: rgba(15,118,110,.14);
+}
+
+body[data-theme="standard"] .finance-card:nth-child(4) .finance-icon,
+body[data-theme="standard"] .card-icon.ci-amber {
+  color: var(--amber);
+  background: rgba(217,119,6,.08);
+  border-color: rgba(217,119,6,.16);
+}
+
+body[data-theme="standard"] .field input,
+body[data-theme="standard"] .field select,
+body[data-theme="standard"] .field textarea,
+body[data-theme="standard"] .task-toolbar select,
+body[data-theme="standard"] td select,
+body[data-theme="standard"] td input {
+  background: var(--surface2);
+  border-color: rgba(15,23,42,.12);
+  color: var(--text);
+}
+
+body[data-theme="standard"] .subject-card,
+body[data-theme="standard"] .standing-row,
+body[data-theme="standard"] .subject-row td,
+body[data-theme="standard"] .schedule-block {
+  --subject-color: var(--accent);
+  --subject-color-2: var(--accent2);
+  --subject-soft: rgba(79,70,229,.08);
+}
+

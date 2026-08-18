@@ -1,0 +1,196 @@
+/* ══════════════════════════════════════════════════════════
+   Academic Tracker - Professional Light UI
+   Optional theme colors are driven by THEME_CONFIG in core.js.
+   ══════════════════════════════════════════════════════════ */
+
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+
+:root {
+  /* Background */
+  --bg:        #f6f8fb;
+  --bg2:       #eef2f7;
+  --surface:   #ffffff;
+  --surface2:  #f8fafc;
+  --surface3:  #eef2f7;
+
+  /* Default standard UI uses three colors: indigo, teal, amber. */
+  --accent:    #4f46e5;
+  --accent2:   #2563eb;
+  --accent3:   #3730a3;
+  --accent-rgb: 79,70,229;
+  --accent-dim: rgba(79,70,229,.10);
+  --accent-glow: rgba(79,70,229,.18);
+
+  --charcoal:  #111827;
+  --charcoal2: #475569;
+  --charcoal-rgb: 17,24,39;
+  --theme-image: none;
+
+  /* Text */
+  --text:      #111827;
+  --text2:     #475569;
+  --text3:     #94a3b8;
+  --text-inv:  #ffffff;
+
+  /* Status colors reuse the same small palette */
+  --green:  #0f766e;
+  --amber:  #d97706;
+  --red:    #dc2626;
+  --blue:   #4f46e5;
+  --teal:   #0f766e;
+
+  /* Border */
+  --border:    rgba(15,23,42,.08);
+  --border2:   rgba(79,70,229,.18);
+
+  /* Shadow */
+  --shadow-xs: 0 8px 20px rgba(15,23,42,.04);
+  --shadow-sm: 0 12px 28px rgba(15,23,42,.07);
+  --shadow-md: 0 18px 42px rgba(15,23,42,.10);
+  --shadow-lg: 0 24px 60px rgba(15,23,42,.14);
+
+  /* Radius */
+  --r-sm:  10px;
+  --r-md:  14px;
+  --r-lg:  18px;
+  --r-xl:  22px;
+
+  --font: 'Plus Jakarta Sans', system-ui, sans-serif;
+  --mono: 'JetBrains Mono', monospace;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  min-height: 100vh;
+  font-family: var(--font);
+  font-size: 14px;
+  color: var(--text);
+  background: linear-gradient(180deg, #ffffff 0%, var(--bg) 36%, var(--bg2) 100%);
+  -webkit-font-smoothing: antialiased;
+  transition: background .22s ease, color .22s ease;
+}
+body.theme-is-switching .anime-theme-backdrop,
+body.theme-is-switching .welcome-panel,
+body.theme-is-switching .anime-hero-card {
+  opacity: .72;
+}
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    radial-gradient(circle at 20% 10%, rgba(var(--accent-rgb), .32), transparent 300px),
+    linear-gradient(90deg, rgba(0,0,0,.48), rgba(0,0,0,.18) 48%, rgba(0,0,0,.42));
+}
+
+.anime-theme-backdrop {
+  position: absolute;
+  inset: 0 0 auto 0;
+  min-height: max(240vh, 2400px);
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  background: var(--bg);
+  transition: opacity .22s ease;
+}
+.anime-theme-backdrop::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(90deg, rgba(0,0,0,.52), rgba(0,0,0,.12) 48%, rgba(0,0,0,.44)),
+    radial-gradient(circle at 70% 12%, rgba(var(--accent-rgb),.30), transparent 320px);
+  backdrop-filter: blur(.4px);
+}
+.anime-theme-backdrop::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(135deg, rgba(var(--accent-rgb),.12), transparent 34%),
+    repeating-linear-gradient(90deg, rgba(255,255,255,.035) 0 1px, transparent 1px 62px);
+  mix-blend-mode: screen;
+  opacity: .34;
+}
+.anime-bg-layer {
+  position: absolute;
+  background-repeat: no-repeat;
+  background-size: cover;
+  filter: saturate(1.15) contrast(1.06);
+  opacity: .76;
+  animation: animeDrift 18s ease-in-out infinite alternate;
+  box-shadow: 0 0 70px rgba(var(--accent-rgb),.16);
+}
+.anime-bg-layer.layer-1 {
+  top: 0;
+  right: 0;
+  width: 78vw;
+  height: 92vh;
+  background-position: center;
+  clip-path: polygon(18% 0, 100% 0, 100% 100%, 0 86%);
+}
+.anime-bg-layer.layer-2 {
+  left: 180px;
+  top: 56vh;
+  width: 58vw;
+  height: 66vh;
+  background-position: center;
+  opacity: .66;
+  animation-duration: 22s;
+  clip-path: polygon(0 8%, 92% 0, 100% 88%, 10% 100%);
+}
+.anime-bg-layer.layer-3 {
+  left: 0;
+  top: 118vh;
+  width: 62vw;
+  height: 76vh;
+  background-position: center;
+  opacity: .58;
+  filter: blur(.6px) saturate(1.22);
+  animation-duration: 26s;
+}
+.anime-bg-layer.layer-4 {
+  right: 0;
+  top: 154vh;
+  width: 66vw;
+  height: 82vh;
+  background-position: center;
+  opacity: .62;
+  animation-duration: 24s;
+  clip-path: polygon(8% 0, 100% 12%, 88% 100%, 0 86%);
+}
+.luxury-bg-layer {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 78% 16%, rgba(var(--accent-rgb),.32), transparent 320px),
+    radial-gradient(circle at 18% 76%, rgba(185,215,255,.13), transparent 260px),
+    linear-gradient(135deg, var(--bg), #020611 52%, var(--bg2));
+}
+.luxury-bg-layer::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(120deg, transparent 0 42%, rgba(255,255,255,.06) 42% 43%, transparent 43%),
+    repeating-linear-gradient(90deg, rgba(255,255,255,.035) 0 1px, transparent 1px 86px);
+  opacity: .5;
+}
+
+header,
+.portal-topbar,
+.tab-content,
+.toast,
+.modal-backdrop {
+  position: relative;
+  z-index: 1;
+}
+
+@keyframes animeDrift {
+  from { transform: scale(1.03) translate3d(-8px, -4px, 0); }
+  to   { transform: scale(1.09) translate3d(12px, 8px, 0); }
+}
+
