@@ -55,8 +55,8 @@
   --r-lg:  18px;
   --r-xl:  22px;
 
-  --font: 'Plus Jakarta Sans', system-ui, sans-serif;
-  --mono: 'JetBrains Mono', monospace;
+  --font: 'Segoe UI', 'Plus Jakarta Sans', system-ui, sans-serif;
+  --mono: 'Cascadia Mono', 'JetBrains Mono', monospace;
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -73,6 +73,7 @@ body {
 }
 button, input, select, textarea { font: inherit; }
 h1, h2, h3 { line-height: 1.2; }
+.hide { display: none !important; }
 :where(a, button, input, select, textarea):focus-visible {
   outline: 3px solid var(--accent2);
   outline-offset: 3px;

@@ -244,26 +244,220 @@ function formatScheduleTime(subject) {
   return `${subject.scheduleDay}, ${start}-${end}`;
 }
 
+const SCHEDULE_DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+const SCHEDULE_DAY_LABELS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+const SCHEDULE_START_HOUR = 7;
+const SCHEDULE_END_HOUR = 21;
+
+function scheduleMinutes(hour, minute = 0) {
+  return safeNumber(hour) * 60 + safeNumber(minute);
+}
+
+function scheduleTimeValue(hour, minute = 0) {
+  return `${String(safeNumber(hour)).padStart(2, "0")}:${String(safeNumber(minute)).padStart(2, "0")}`;
+}
+
+function scheduleSlotTime(slot) {
+  return `${scheduleTimeValue(slot.startHour, slot.startMinute)}-${scheduleTimeValue(slot.endHour, slot.endMinute)}`;
+}
+
+function getScheduleDayCheckboxes() {
+  return Array.from(document.querySelectorAll("#scheduleDay input[type='checkbox']"));
+}
+
+function getSelectedScheduleDays() {
+  return getScheduleDayCheckboxes().filter(input => input.checked).map(input => input.value);
+}
+
+function setSelectedScheduleDays(days) {
+  const selected = new Set(Array.isArray(days) ? days : [days].filter(Boolean));
+  getScheduleDayCheckboxes().forEach(input => {
+    input.checked = selected.has(input.value);
+  });
+}
+
+function getScheduleEntries() {
+  const entries = [];
+  subjects.forEach(subject => {
+    getAllSlotsForSubject(subject).forEach(slot => {
+      if (!slot.day) return;
+      entries.push({
+        ...slot,
+        id: `subject-${cssSafe(subject.name)}-${slot.isPrimary ? "primary" : slot.extraIndex}`,
+        title: subject.name,
+        kind: "subject",
+        subjectName: subject.name,
+        extraIndex: slot.extraIndex,
+        isPrimary: slot.isPrimary,
+        colorName: subject.name,
+        location: slot.location || "No room set"
+      });
+    });
+  });
+  getCustomSlots().forEach((slot, customIndex) => {
+    if (!slot.day) return;
+    entries.push({
+      ...slot,
+      id: `custom-${customIndex}`,
+      customIndex,
+      title: slot.title || "Personal task",
+      kind: "custom",
+      colorName: slot.title || "Personal task",
+      location: slot.location || "No room set"
+    });
+  });
+  return entries.map(entry => ({
+    ...entry,
+    startMinutes: scheduleMinutes(entry.startHour, entry.startMinute),
+    endMinutes: scheduleMinutes(entry.endHour, entry.endMinute)
+  })).filter(entry => entry.endMinutes > entry.startMinutes);
+}
+
+function scheduleRemoveButton(entry) {
+  if (entry.kind === "custom") {
+    return `<button class="btn btn-danger btn-sm schedule-remove" type="button" onclick="removeCustomSlotAndRefresh(${safeNumber(entry.customIndex)})">Remove</button>`;
+  }
+  if (entry.isPrimary) {
+    return `<button class="btn btn-danger btn-sm schedule-remove" type="button" onclick="clearPrimarySchedule(${JSON.stringify(entry.subjectName)})">Remove</button>`;
+  }
+  return `<button class="btn btn-danger btn-sm schedule-remove" type="button" onclick="removeExtraSlotAndRefresh(${JSON.stringify(entry.subjectName)}, ${safeNumber(entry.extraIndex)})">Remove</button>`;
+}
+
+function overlapsScheduleRange(entry, day, startMinutes, endMinutes) {
+  return entry.day === day && entry.startMinutes < endMinutes && entry.endMinutes > startMinutes;
+}
+
+function clusterScheduleEntries(entries) {
+  const clusters = [];
+  SCHEDULE_DAYS.forEach(day => {
+    const dayEntries = entries
+      .filter(entry => entry.day === day)
+      .sort((a, b) => a.startMinutes - b.startMinutes || b.endMinutes - a.endMinutes);
+    dayEntries.forEach(entry => {
+      const cluster = clusters.find(item =>
+        item.day === day && item.startMinutes < entry.endMinutes && item.endMinutes > entry.startMinutes
+      );
+      if (cluster) {
+        cluster.entries.push(entry);
+        cluster.startMinutes = Math.min(cluster.startMinutes, entry.startMinutes);
+        cluster.endMinutes = Math.max(cluster.endMinutes, entry.endMinutes);
+      } else {
+        clusters.push({
+          day,
+          startMinutes: entry.startMinutes,
+          endMinutes: entry.endMinutes,
+          entries: [entry]
+        });
+      }
+    });
+  });
+  return clusters;
+}
+
+function renderScheduleOverlapPopover(clusterId, cluster, dayIndex, top) {
+  return `
+    <div id="${clusterId}" class="schedule-overlap-popover hide" style="--day-index:${dayIndex}; --slot-top:${top};">
+      <button class="schedule-popover-close" type="button" onclick="closeScheduleOverlap(event)">x</button>
+      <strong>${escapeHtml(cluster.day)} ${scheduleSlotTime(cluster.entries[0])}</strong>
+      ${cluster.entries.map(entry => `
+        <div class="schedule-popover-item" style="${subjectThemeStyle(subjectTheme(entry.colorName))}">
+          <span>${escapeHtml(entry.title)}</span>
+          <small>${escapeHtml(scheduleSlotTime(entry))} - ${escapeHtml(entry.location || "No room set")}</small>
+          ${scheduleRemoveButton(entry)}
+        </div>
+      `).join("")}
+    </div>
+  `;
+}
+
 function renderSchedule() {
   const container = $("scheduleBoard");
   if (!container) return;
 
-  const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
-  container.innerHTML = days.map(day => {
-    const daySubjects = subjects.filter(subject => subject.scheduleDay === day);
+  const entries = getScheduleEntries();
+  const clusters = clusterScheduleEntries(entries);
+  const hourSlots = Array.from(
+    { length: SCHEDULE_END_HOUR - SCHEDULE_START_HOUR },
+    (_, index) => SCHEDULE_START_HOUR + index
+  );
+  const gridStart = SCHEDULE_START_HOUR * 60;
+  const totalMinutes = (SCHEDULE_END_HOUR - SCHEDULE_START_HOUR) * 60;
+  const cells = hourSlots.map(hour => `
+    <div class="schedule-time-row">${new Date(2020, 0, 1, hour).toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" })}</div>
+    ${SCHEDULE_DAYS.map(day => {
+      const startMinutes = hour * 60;
+      const endMinutes = startMinutes + 60;
+      const isEmpty = !entries.some(entry => overlapsScheduleRange(entry, day, startMinutes, endMinutes));
+      return `
+        <button class="schedule-grid-cell ${isEmpty ? "is-empty" : "has-entry"}" type="button"
+          ${isEmpty ? `onclick="prefillScheduleFromGrid('${day}', '${scheduleTimeValue(hour, 0)}')"` : `onclick="openScheduleOverlapForSlot('${day}', ${startMinutes}, ${endMinutes})"`}
+          aria-label="${isEmpty ? `Add schedule on ${day} at ${scheduleTimeValue(hour, 0)}` : `View schedules on ${day} at ${scheduleTimeValue(hour, 0)}`}">
+          ${isEmpty ? `<span class="schedule-add-btn">+</span>` : ""}
+        </button>
+      `;
+    }).join("")}
+  `).join("");
+  const blocks = clusters.map((cluster, index) => {
+    const visible = cluster.entries[0];
+    const theme = subjectTheme(visible.colorName);
+    const dayIndex = SCHEDULE_DAYS.indexOf(cluster.day);
+    const visibleStart = Math.max(gridStart, cluster.startMinutes);
+    const visibleEnd = Math.min(SCHEDULE_END_HOUR * 60, cluster.endMinutes);
+    if (dayIndex < 0 || visibleEnd <= gridStart || visibleStart >= SCHEDULE_END_HOUR * 60) return "";
+    const top = ((visibleStart - gridStart) / totalMinutes) * 100;
+    const height = Math.max(7, ((visibleEnd - visibleStart) / totalMinutes) * 100);
+    const clusterId = `scheduleOverlap-${index}`;
     return `
-      <div class="schedule-day">
-        <h3>${day}</h3>
-        ${daySubjects.length ? daySubjects.map(subject => `
-          <div class="schedule-block" style="${subjectThemeStyle(subjectTheme(subject.name))}">
-            <strong style="color:${subjectTheme(subject.name).color};">${escapeHtml(subject.name)}</strong>
-            <span>${formatScheduleTime(subject)}</span>
-            <small>${escapeHtml(subject.scheduleLocation || "No room set")}</small>
-          </div>
-        `).join("") : `<div class="empty-state">No classes.</div>`}
-      </div>
+      <article class="schedule-grid-block" style="${subjectThemeStyle(theme)} --day-index:${dayIndex}; --slot-top:${top}; --slot-height:${height};" onclick="openScheduleOverlap('${clusterId}')">
+        <strong>${escapeHtml(visible.title)}</strong>
+        <span>${escapeHtml(scheduleSlotTime(visible))}</span>
+        <small>${escapeHtml(visible.location || "No room set")}</small>
+        ${cluster.entries.length > 1 ? `<button class="schedule-more-badge" type="button" onclick="openScheduleOverlap('${clusterId}', event)">+${cluster.entries.length - 1} more</button>` : ""}
+      </article>
+      ${renderScheduleOverlapPopover(clusterId, cluster, dayIndex, top)}
     `;
   }).join("");
+
+  container.innerHTML = `
+    <div class="schedule-week-grid">
+      <div class="schedule-corner">Time</div>
+      ${SCHEDULE_DAY_LABELS.map(day => `<div class="schedule-day-head">${day}</div>`).join("")}
+      <div class="schedule-grid-body">
+        <div class="schedule-grid-cells">${cells}</div>
+        <div class="schedule-grid-layers">${blocks}</div>
+      </div>
+    </div>
+    ${entries.length ? "" : `<div class="schedule-empty">No schedule slots yet. Use a + cell or the form to add one.</div>`}
+  `;
+}
+
+function prefillScheduleFromGrid(day, startTime) {
+  setSelectedScheduleDays(day);
+  if ($("scheduleStart")) $("scheduleStart").value = startTime;
+  const [hour, minute] = startTime.split(":").map(Number);
+  const end = new Date(2020, 0, 1, hour + 1, minute);
+  if ($("scheduleEnd")) $("scheduleEnd").value = scheduleTimeValue(end.getHours(), end.getMinutes());
+  $("scheduleKind")?.focus();
+}
+
+function openScheduleOverlap(popoverId, event) {
+  event?.stopPropagation();
+  document.querySelectorAll(".schedule-overlap-popover").forEach(popover => {
+    popover.classList.toggle("hide", popover.id !== popoverId);
+  });
+}
+
+function openScheduleOverlapForSlot(day, startMinutes, endMinutes) {
+  const clusters = clusterScheduleEntries(getScheduleEntries());
+  const index = clusters.findIndex(item =>
+    item.day === day && item.startMinutes < endMinutes && item.endMinutes > startMinutes
+  );
+  if (index >= 0) openScheduleOverlap(`scheduleOverlap-${index}`);
+}
+
+function closeScheduleOverlap(event) {
+  event?.stopPropagation();
+  document.querySelectorAll(".schedule-overlap-popover").forEach(popover => popover.classList.add("hide"));
 }
 
 function subjectTasks(name) {
@@ -555,7 +749,6 @@ function loadScheduleForm() {
   document.querySelector(".schedule-custom-field")?.classList.toggle("hide", kind !== "custom");
 
   if (kind === "custom") {
-    if ($("scheduleDay") && !$("scheduleDay").value) $("scheduleDay").value = "";
     if ($("scheduleStart") && !$("scheduleStart").value) $("scheduleStart").value = "08:00";
     if ($("scheduleEnd") && !$("scheduleEnd").value) $("scheduleEnd").value = "09:00";
     return;
@@ -566,14 +759,14 @@ function loadScheduleForm() {
   const subject = subjects.find(item => item.name === select.value);
 
   if (!subject) {
-    if ($("scheduleDay")) $("scheduleDay").value = "";
+    setSelectedScheduleDays([]);
     if ($("scheduleStart")) $("scheduleStart").value = "08:00";
     if ($("scheduleEnd")) $("scheduleEnd").value = "09:00";
     if ($("scheduleLocation")) $("scheduleLocation").value = "";
     return;
   }
 
-  $("scheduleDay").value = subject.scheduleDay || "";
+  setSelectedScheduleDays(subject.scheduleDay ? [subject.scheduleDay] : []);
   $("scheduleStart").value = `${String(safeNumber(subject.scheduleStartHour, 8)).padStart(2, "0")}:${String(safeNumber(subject.scheduleStartMinute)).padStart(2, "0")}`;
   $("scheduleEnd").value = `${String(safeNumber(subject.scheduleEndHour, 9)).padStart(2, "0")}:${String(safeNumber(subject.scheduleEndMinute)).padStart(2, "0")}`;
   $("scheduleLocation").value = subject.scheduleLocation || "";
@@ -581,9 +774,9 @@ function loadScheduleForm() {
 
 async function saveScheduleFromTab() {
   const kind = $("scheduleKind")?.value || "subject";
-  const day = $("scheduleDay").value;
-  if (!day) {
-    showToast("Please select a day", "warn");
+  const selectedDays = getSelectedScheduleDays();
+  if (!selectedDays.length) {
+    showToast("Please select at least one day", "warn");
     return;
   }
 
@@ -600,7 +793,7 @@ async function saveScheduleFromTab() {
       return;
     }
 
-    addCustomSlot({
+    selectedDays.forEach(day => addCustomSlot({
       title,
       day,
       startHour: scheduleStartHour,
@@ -608,10 +801,10 @@ async function saveScheduleFromTab() {
       endHour: scheduleEndHour,
       endMinute: scheduleEndMinute,
       location
-    });
+    }));
     if ($("scheduleCustomTitle")) $("scheduleCustomTitle").value = "";
     renderSchedule();
-    showToast(`Added ${title} to ${day}`);
+    showToast(`Added ${title} to ${selectedDays.length} day${selectedDays.length === 1 ? "" : "s"}`);
     return;
   }
 
@@ -622,31 +815,33 @@ async function saveScheduleFromTab() {
   }
 
   const subject = subjects.find(s => s.name === name);
+  const primaryDay = !subject || !subject.scheduleDay ? selectedDays[0] : null;
+  const extraDays = primaryDay ? selectedDays.slice(1) : selectedDays;
 
   // If this subject has no primary schedule yet, save it as the primary (backend)
-  if (!subject || !subject.scheduleDay) {
+  if (primaryDay) {
     const saved = await saveSubjectMetaPayload(name, {
-      scheduleDay: day,
+      scheduleDay: primaryDay,
       scheduleLocation: location,
       scheduleStartHour,
       scheduleStartMinute,
       scheduleEndHour,
       scheduleEndMinute
     });
-    if (saved) showToast("Schedule saved");
-  } else {
-    // Subject already has a primary day - add as an extra local slot
-    addExtraSlot(name, {
+    if (!saved) return;
+  }
+
+  // Subject already has a primary day - add selected days as extra local slots.
+  extraDays.forEach(day => addExtraSlot(name, {
       day,
       startHour: scheduleStartHour,
       startMinute: scheduleStartMinute,
       endHour: scheduleEndHour,
       endMinute: scheduleEndMinute,
       location
-    });
-    renderSchedule();
-    showToast(`Added ${day} slot for ${name}`);
-  }
+  }));
+  renderSchedule();
+  showToast(`Schedule saved for ${selectedDays.length} day${selectedDays.length === 1 ? "" : "s"}`);
 }
 
 async function saveDashboardAbsence(index) {

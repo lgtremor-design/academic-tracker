@@ -108,15 +108,33 @@ nav { display: flex; flex-direction: column; gap: 2px; flex: 1; }
 .today { font-size: 1.25rem; font-weight: 800; color: var(--text); letter-spacing: 0; margin-top: 2px; }
 .search-pill {
   height: 44px;
+  min-width: 300px;
   display: flex; align-items: center;
   padding: 0 16px; gap: 10px;
-  border-radius: 999px;
+  border-radius: 10px;
   background: var(--surface);
   border: 1.5px solid var(--border2);
   box-shadow: var(--shadow-xs);
   backdrop-filter: blur(14px);
   font-size: .82rem; color: var(--text3);
   transition: border-color .18s, box-shadow .18s;
+}
+.search-pill input {
+  min-width: 0;
+  width: 100%;
+  border: 0;
+  outline: 0;
+  color: var(--text);
+  background: transparent;
+  font: 700 .78rem var(--font);
+}
+.search-pill input::placeholder {
+  color: var(--text3);
+}
+.search-pill kbd {
+  color: var(--text3);
+  font: 800 .68rem var(--font);
+  white-space: nowrap;
 }
 .search-pill::before {
   content: "";
@@ -134,6 +152,52 @@ nav { display: flex; flex-direction: column; gap: 2px; flex: 1; }
   justify-content: flex-end;
   gap: 12px;
   min-width: 0;
+}
+.topbar-icon-btn {
+  position: relative;
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  border: 1.5px solid var(--border2);
+  border-radius: 50%;
+  color: var(--accent);
+  background: var(--surface);
+  box-shadow: var(--shadow-xs);
+  cursor: pointer;
+  transition: transform .16s, box-shadow .16s, border-color .16s;
+}
+.topbar-icon-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+  border-color: var(--accent);
+}
+.topbar-icon-btn svg {
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.notification-badge {
+  position: absolute;
+  top: -3px;
+  right: -2px;
+  min-width: 18px;
+  height: 18px;
+  display: grid;
+  place-items: center;
+  padding: 0 5px;
+  border-radius: 999px;
+  color: #fff;
+  background: var(--accent);
+  font: 800 .62rem var(--font);
+  box-shadow: 0 4px 12px var(--accent-glow);
+}
+.notification-badge.hide {
+  display: none;
 }
 .theme-switcher {
   min-height: 44px;

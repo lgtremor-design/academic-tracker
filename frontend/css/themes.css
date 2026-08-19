@@ -1,12 +1,27 @@
 /* Standard professional theme override */
 body[data-theme="standard"] {
   color: var(--text);
-  background: #f6f5fb;
+  background: linear-gradient(180deg, #fbfdfb 0%, var(--bg) 45%, var(--bg2) 100%);
 }
 
 body[data-theme="standard"]::before,
-body[data-theme="standard"] .anime-theme-backdrop,
 body[data-theme="standard"] .anime-hero-card {
+  display: none;
+}
+
+body[data-theme="standard"] .anime-theme-backdrop {
+  display: block;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.95), rgba(243,247,241,.98)),
+    radial-gradient(circle at 8% 95%, rgba(18,115,61,.13), transparent 300px);
+}
+
+body[data-theme="standard"] .anime-theme-backdrop::before,
+body[data-theme="standard"] .anime-theme-backdrop::after {
+  content: none;
+}
+
+body[data-theme="standard"] .anime-theme-backdrop > * {
   display: none;
 }
 
@@ -31,8 +46,8 @@ body[data-theme="standard"] .theme-switcher {
 }
 
 body[data-theme="standard"] header {
-  border-color: rgba(109,94,247,.10);
-  box-shadow: 0 12px 28px rgba(31,27,45,.06);
+  border-color: rgba(18,115,61,.10);
+  box-shadow: 0 12px 28px rgba(16,35,27,.06);
 }
 
 body[data-theme="standard"] .portal-topbar {
@@ -44,9 +59,9 @@ body[data-theme="standard"] .portal-topbar {
 body[data-theme="standard"] .progress-ring {
   background:
     radial-gradient(circle at center, var(--surface) 0 54%, transparent 56%),
-    conic-gradient(var(--accent) var(--progress-sweep, var(--progress)), #f0ecff 0);
-  border-color: rgba(109,94,247,.14);
-  box-shadow: 0 10px 24px rgba(109,94,247,.10);
+    conic-gradient(var(--accent) var(--progress-sweep, var(--progress)), #dfece3 0);
+  border-color: rgba(18,115,61,.14);
+  box-shadow: 0 10px 24px rgba(18,115,61,.10);
 }
 
 body[data-theme="standard"] .topbar-actions {
@@ -73,15 +88,15 @@ body[data-theme="standard"] .card-icon,
 body[data-theme="standard"] .as-icon,
 body[data-theme="standard"] .an-icon {
   color: var(--accent);
-  background: rgba(79,70,229,.08);
-  border-color: rgba(79,70,229,.14);
+  background: rgba(18,115,61,.08);
+  border-color: rgba(18,115,61,.14);
 }
 
 body[data-theme="standard"] .finance-card:nth-child(2) .finance-icon,
 body[data-theme="standard"] .card-icon.ci-green {
   color: var(--teal);
-  background: rgba(15,118,110,.08);
-  border-color: rgba(15,118,110,.14);
+  background: rgba(13,148,136,.08);
+  border-color: rgba(13,148,136,.14);
 }
 
 body[data-theme="standard"] .finance-card:nth-child(4) .finance-icon,

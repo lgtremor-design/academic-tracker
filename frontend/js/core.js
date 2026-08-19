@@ -21,9 +21,9 @@ const DESIGN_THEME_VERSION_KEY = "atDesignThemeDefaultVersion";
 const DESIGN_THEME_DEFAULT_VERSION = "standard-v1";
 const THEME_CONFIG = {
   standard: {
-    name: "Clean Light",
-    title: "Academic dashboard",
-    subtitle: "Stay organized. Track deadlines. Improve your grades.",
+    name: "Clean Green",
+    title: "You are doing amazing today.",
+    subtitle: "Here is your academic overview for today.",
     backgroundImages: [],
     characterImages: [],
     mainCharacter: {
@@ -32,29 +32,29 @@ const THEME_CONFIG = {
       image: ""
     },
     colors: {
-      bg: "#FAF9FF",
-      bg2: "#F3F0FF",
-      surface: "rgba(255,255,255,.95)",
-      surface2: "#F8F6FF",
-      surface3: "#F3F0FF",
-      accent: "#6D5EF7",
-      accent2: "#8B7BFF",
-      accent3: "#5B4BE8",
-      accentRgb: "109,94,247",
-      charcoal: "#1F1B2D",
-      charcoal2: "#625D7C",
-      charcoalRgb: "31,27,45",
-      text: "#1F1B2D",
-      text2: "#625D7C",
-      text3: "#8E8AA8",
+      bg: "#f3f7f1",
+      bg2: "#e7f0e8",
+      surface: "rgba(255,255,255,.92)",
+      surface2: "#f7fbf6",
+      surface3: "#eaf3eb",
+      accent: "#12733d",
+      accent2: "#31a35f",
+      accent3: "#083f2b",
+      accentRgb: "18,115,61",
+      charcoal: "#10231b",
+      charcoal2: "#446257",
+      charcoalRgb: "16,35,27",
+      text: "#10231b",
+      text2: "#446257",
+      text3: "#7d9389",
       textInv: "#ffffff",
-      green: "#22C55E",
-      amber: "#F59E0B",
-      red: "#EF4444",
-      blue: "#3B82F6",
+      green: "#16834a",
+      amber: "#d88a16",
+      red: "#d94f45",
+      blue: "#2b7c8f",
       teal: "#0d9488",
-      border: "rgba(109,94,247,.08)",
-      border2: "rgba(109,94,247,.16)"
+      border: "rgba(16,35,27,.08)",
+      border2: "rgba(18,115,61,.16)"
     }
   },
   demonslayer: {
@@ -627,7 +627,7 @@ function renderStudentName() {
   const input = $("studentNameInput");
   const avatar = $("studentAvatar");
 
-  if (greeting) greeting.textContent = `Hello, ${display}`;
+  if (greeting) greeting.textContent = `${getTimeGreeting()}, ${display}`;
   if (welcome) welcome.textContent = `Welcome back, ${display}!`;
   // Only sync input value when user is NOT actively typing in it
   if (input && document.activeElement !== input) input.value = raw;
@@ -655,10 +655,17 @@ function initializeStudentName() {
     const welcome = $("welcomeTitle");
     const avatar = $("studentAvatar");
     const display = input.value.trim() || "student";
-    if (greeting) greeting.textContent = `Hello, ${display}`;
+    if (greeting) greeting.textContent = `${getTimeGreeting()}, ${display}`;
     if (welcome) welcome.textContent = `Welcome back, ${display}!`;
     if (avatar) avatar.textContent = display.charAt(0).toUpperCase() || "S";
   });
+}
+
+function getTimeGreeting() {
+  const hour = new Date().getHours();
+  if (hour < 12) return "Good morning";
+  if (hour < 18) return "Good afternoon";
+  return "Good evening";
 }
 
 function initializeSearch() {
@@ -678,6 +685,13 @@ function initializeSearch() {
     const query = getSearchQuery();
     if (tasks.some(task => matchesTask(task, query))) showTab("tasks");
     else if (subjects.some(subject => matchesSubject(subject, query))) showTab("subjects");
+  });
+
+  document.addEventListener("keydown", event => {
+    if ((event.ctrlKey || event.metaKey) && event.key === "/") {
+      event.preventDefault();
+      input.focus();
+    }
   });
 }
 

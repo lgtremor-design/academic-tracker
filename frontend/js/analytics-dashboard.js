@@ -320,18 +320,41 @@ function updateDashboard() {
   if ($("dash-avg")) $("dash-avg").textContent =
     subjects.length ? format2(calculateGWA()) : "-";
   if ($("dash-urgent")) $("dash-urgent").textContent = getUrgentCount();
+  renderDashboardStats();
   renderStudyStreak();
   renderDueSoonIndicator();
   renderDashboardProgress();
   renderDashboardCharts();
   renderDashboardDate();
   renderDashboardAbsences();
+  renderTodayFocus();
+  renderWeeklyActivity();
+  renderDashboardInsights();
+}
+
+function renderDashboardStats() {
+  const badge = $("topbarUrgentBadge");
+  const urgent = getUrgentCount();
+  const summary = getTaskStatusSummary();
+  const gwaNote = $("dashGwaNote");
+  const urgentNote = $("dashUrgentNote");
+  const taskTrend = $("dashTaskTrend");
+  if (badge) {
+    badge.textContent = String(urgent);
+    badge.classList.toggle("hide", urgent === 0);
+  }
+  if (taskTrend) taskTrend.textContent = summary.completed ? `${summary.completed} completed` : "Plan your week";
+  if (gwaNote) gwaNote.textContent = subjects.length ? (calculateGWA() <= 1.75 ? "Excellent" : "Keep improving") : "No grades yet";
+  if (urgentNote) urgentNote.textContent = urgent ? `${urgent} needs attention` : "All clear";
 }
 
 function renderStudyStreak() {
   const value = $("dash-streak");
-  const label = $("dash-streak-label");
-  if (!value || !label) return;
+  const sideValue = $("dash-streak-side");
+  const label = $("dash-streak-note");
+  const sideLabel = $("dash-streak-label-side");
+  const dots = $("studyStreakDots");
+  if (!value && !sideValue && !label && !sideLabel && !dots) return;
 
   const activeDates = new Set(
     getStudyLog()
@@ -353,8 +376,21 @@ function renderStudyStreak() {
     }
   }
 
-  value.textContent = String(streak);
-  label.textContent = streak === 0 ? "No study streak yet" : String(streak) + " day streak";
+  const labelText = streak === 0 ? "Keep it up" : String(streak) + " day streak";
+  const sideLabelText = streak === 0 ? "No study streak yet" : "You are on fire";
+  if (value) value.textContent = String(streak);
+  if (sideValue) sideValue.textContent = String(streak);
+  if (label) label.textContent = labelText;
+  if (sideLabel) sideLabel.textContent = sideLabelText;
+  if (dots) {
+    const week = getCurrentWeekItems();
+    dots.innerHTML = week.map(item => `
+      <div class="streak-day ${activeDates.has(item.key) ? "active" : ""}">
+        <span>${escapeHtml(item.short)}</span>
+        <i></i>
+      </div>
+    `).join("");
+  }
 }
 
 function renderDueSoonIndicator() {
@@ -417,21 +453,231 @@ function renderDashboardProgress() {
   const summary = getTaskStatusSummary();
   const ring = $("dashProgressRing");
   const value = $("dashProgressValue");
+  const ringValue = $("dashProgressRingValue");
   const text = $("dashProgressText");
 
   if (ring) ring.style.setProperty("--progress", `${percent}%`);
   if (ring) ring.style.setProperty("--progress-sweep", `${percent > 0 ? percent : 4}%`);
   if (value) value.textContent = `${percent}%`;
+  if (ringValue) ringValue.textContent = `${percent}%`;
   if (text) {
     text.textContent = summary.total
       ? `${summary.completed} complete, ${summary.remaining} remaining`
       : "No tasks yet";
+  }
+  const encourage = $("dashProgressEncourage");
+  if (encourage) {
+    encourage.textContent = summary.total
+      ? `Great job. You have completed ${percent}% of your tracked tasks.`
+      : "Build your task list to see academic progress.";
   }
 }
 
 function renderDashboardCharts() {
   renderTaskStatusChart();
   renderGradeChart();
+}
+
+function getRecentDateItems(days) {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  return Array.from({ length: days }, (_, index) => {
+    const date = new Date(today);
+    date.setDate(today.getDate() - (days - 1 - index));
+    return {
+      date,
+      key: getLocalDateKey(date),
+      short: date.toLocaleDateString(undefined, { weekday: "short" }).slice(0, 1),
+      label: date.toLocaleDateString(undefined, { weekday: "short" })
+    };
+  });
+}
+
+function getCurrentWeekItems(weekOffset = 0) {
+  const mondayLabels = ["M", "T", "W", "T", "F", "S", "S"];
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const monday = new Date(today);
+  const day = monday.getDay();
+  const diffToMonday = day === 0 ? -6 : 1 - day;
+  monday.setDate(today.getDate() + diffToMonday + (weekOffset * 7));
+  return mondayLabels.map((short, index) => {
+    const date = new Date(monday);
+    date.setDate(monday.getDate() + index);
+    return {
+      date,
+      key: getLocalDateKey(date),
+      short,
+      label: date.toLocaleDateString(undefined, { weekday: "long" })
+    };
+  });
+}
+
+function getStudyHoursForDateItems(dateItems) {
+  const keys = new Set(dateItems.map(item => item.key));
+  return getStudyLog().reduce((totals, entry) => {
+    if (!keys.has(entry.date)) return totals;
+    totals[entry.date] = (totals[entry.date] || 0) + Number(entry.hours);
+    return totals;
+  }, {});
+}
+
+function renderWeeklyActivity() {
+  const container = $("dashboardWeeklyActivity");
+  const totalEl = $("dashWeeklyTotal");
+  const totalCard = $("dashWeeklyTotalCard");
+  const compareCard = $("dashWeeklyCompare");
+  if (!container) return;
+
+  const days = getCurrentWeekItems();
+  const previousDays = getCurrentWeekItems(-1);
+  const byDate = getStudyHoursForDateItems(days);
+  const previousByDate = getStudyHoursForDateItems(previousDays);
+  const values = days.map(item => safeNumber(byDate[item.key]));
+  const previousValues = previousDays.map(item => safeNumber(previousByDate[item.key]));
+  const total = values.reduce((sum, value) => sum + value, 0);
+  const previousTotal = previousDays
+    .map(item => safeNumber(previousByDate[item.key]))
+    .reduce((sum, value) => sum + value, 0);
+  const compare = previousTotal > 0
+    ? Math.round(((total - previousTotal) / previousTotal) * 100)
+    : (total > 0 ? 100 : 0);
+  const max = Math.max(1, ...values, ...previousValues);
+  if (totalEl) totalEl.textContent = formatHours(total);
+  if (totalCard) totalCard.textContent = formatHours(total);
+  if (compareCard) {
+    compareCard.textContent = compare === 0 ? "0%" : `${compare > 0 ? "+" : ""}${compare}%`;
+    compareCard.classList.toggle("is-down", compare < 0);
+  }
+
+  const width = 640;
+  const height = 220;
+  const left = 48;
+  const right = 18;
+  const top = 18;
+  const bottom = 36;
+  const plotW = width - left - right;
+  const plotH = height - top - bottom;
+  const points = values.map((value, index) => {
+    const x = left + (index / Math.max(1, values.length - 1)) * plotW;
+    const y = top + plotH - (value / max) * plotH;
+    return { x, y, value };
+  });
+  let linePath = "";
+  if (points.length) {
+    linePath = `M ${points[0].x.toFixed(1)} ${points[0].y.toFixed(1)}`;
+    for (let i = 0; i < points.length - 1; i++) {
+      const p0 = points[Math.max(0, i - 1)];
+      const p1 = points[i];
+      const p2 = points[i + 1];
+      const p3 = points[Math.min(points.length - 1, i + 2)];
+      const touchesZero = p1.value <= 0 || p2.value <= 0;
+      if (touchesZero) {
+        linePath += ` L ${p2.x.toFixed(1)} ${p2.y.toFixed(1)}`;
+      } else {
+        const cp1x = p1.x + (p2.x - p0.x) / 6;
+        const cp1y = p1.y + (p2.y - p0.y) / 6;
+        const cp2x = p2.x - (p3.x - p1.x) / 6;
+        const cp2y = p2.y - (p3.y - p1.y) / 6;
+        linePath += ` C ${cp1x.toFixed(1)} ${cp1y.toFixed(1)} ${cp2x.toFixed(1)} ${cp2y.toFixed(1)} ${p2.x.toFixed(1)} ${p2.y.toFixed(1)}`;
+      }
+    }
+  }
+  const baseline = (top + plotH).toFixed(1);
+  const areaPath = points.length
+    ? `M ${left} ${baseline} L ${points[0].x.toFixed(1)} ${baseline} ${linePath.replace(/^M /, "L ")} L ${left + plotW} ${baseline} Z`
+    : "";
+
+  container.innerHTML = `
+    <svg class="weekly-line-chart" viewBox="0 0 ${width} ${height}" preserveAspectRatio="none" role="img" aria-label="Weekly study activity">
+      <defs>
+        <linearGradient id="weeklyActivityFill" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="var(--accent2)" stop-opacity=".28"/>
+          <stop offset="100%" stop-color="var(--accent2)" stop-opacity="0"/>
+        </linearGradient>
+      </defs>
+      ${[0, max / 2, max].map(value => {
+        const y = top + plotH - (value / max) * plotH;
+        return `<g class="chart-gridline"><text x="4" y="${y + 4}" class="chart-y-label">${formatHours(value)}</text><line x1="${left}" x2="${left + plotW}" y1="${y}" y2="${y}"></line></g>`;
+      }).join("")}
+      <path class="weekly-area" d="${areaPath}"></path>
+      <path class="weekly-line" d="${linePath}"></path>
+      ${points.map((point, index) => `<circle class="weekly-point" cx="${point.x.toFixed(1)}" cy="${point.y.toFixed(1)}" r="4.5"><title>${escapeHtml(days[index].label)}: ${formatHours(point.value)}</title></circle>`).join("")}
+      ${days.map((item, index) => `<text class="weekly-x-label" x="${points[index].x.toFixed(1)}" y="${height - 10}" text-anchor="middle">${escapeHtml(item.short)}</text>`).join("")}
+    </svg>
+  `;
+}
+
+function renderTodayFocus() {
+  const container = $("todayFocusList");
+  if (!container) return;
+
+  const openTasks = tasks.filter(task => task.status !== "Done" && matchesTask(task));
+  if (!tasks.length) {
+    container.innerHTML = `<div class="empty-state">No tasks yet. Create your first deadline from the Tasks tab.</div>`;
+    return;
+  }
+  if (!openTasks.length) {
+    container.innerHTML = `<div class="empty-state">You are all caught up. No open tasks match your filters.</div>`;
+    return;
+  }
+
+  const focusTasks = sortTasksForView(openTasks).slice(0, 5);
+  container.innerHTML = focusTasks.map(task => {
+    const days = getDaysLeft(task);
+    const theme = subjectTheme(task.subjectName);
+    return `
+      <article class="focus-task" style="${subjectThemeStyle(theme)}">
+        <label class="focus-check">
+          <input type="checkbox" onchange="updateTaskStatus(${task.id}, this.checked ? 'Done' : 'In Progress')">
+          <span></span>
+        </label>
+        <div class="focus-task-body">
+          <strong>${escapeHtml(task.description || "Untitled task")}</strong>
+          <p>${escapeHtml(task.subjectName || "General")} - ${formatDaysLabel(days)} - ${formatTaskTime(task)}</p>
+        </div>
+        <div class="focus-priority">${getPriority(days, task.status)}</div>
+      </article>
+    `;
+  }).join("");
+}
+
+function renderDashboardInsights() {
+  const container = $("dashboardInsights");
+  if (!container) return;
+
+  const topStudy = getStudyHourRows()[0];
+  const topTasks = subjects
+    .map(subject => ({
+      subject,
+      completed: subjectTasks(subject.name).filter(task => task.status === "Done").length,
+      theme: subjectTheme(subject.name)
+    }))
+    .sort((a, b) => b.completed - a.completed || a.subject.name.localeCompare(b.subject.name))[0];
+
+  container.innerHTML = `
+    <article class="insight-feature-card">
+      <div class="insight-crest" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><path d="M8 4h8v3a4 4 0 0 1-8 0V4Z"/><path d="M7 5H4v2a4 4 0 0 0 4 4M17 5h3v2a4 4 0 0 1-4 4M12 11v5M9 20h6M10 16h4"/></svg>
+      </div>
+      <div>
+        <span>Most Study Time</span>
+        <strong>${topStudy ? escapeHtml(topStudy.name) : "No sessions"}</strong>
+        <p>${topStudy ? formatHours(topStudy.hours) : "Start a study session"}</p>
+      </div>
+    </article>
+    <article class="insight-feature-card">
+      <div class="insight-crest clipboard" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><rect x="6" y="5" width="12" height="16" rx="2"/><path d="M9 5a3 3 0 0 1 6 0"/><path d="m9 13 2 2 4-5"/><path d="M9 18h6"/></svg>
+      </div>
+      <div>
+        <span>Most Tasks Completed</span>
+        <strong>${topTasks && topTasks.completed ? escapeHtml(topTasks.subject.name) : "No completed tasks"}</strong>
+        <p>${topTasks && topTasks.completed ? `${topTasks.completed} task${topTasks.completed === 1 ? "" : "s"}` : "Mark tasks done to fill this"}</p>
+      </div>
+    </article>
+    <div class="insight-footer">Keep going. You are building a great habit.</div>
+  `;
 }
 
 function renderTaskStatusChart() {

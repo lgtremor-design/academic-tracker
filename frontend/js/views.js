@@ -221,11 +221,11 @@ function renderDoneTasks() {
 }
 
 function getTodoItems() {
-  try { return JSON.parse(localStorage.getItem("atTodoItems") || "[]"); } catch { return []; }
+  try { return JSON.parse(localStorage.getItem("atDashboardTodoItems") || "[]"); } catch { return []; }
 }
 
 function saveTodoItems(items) {
-  localStorage.setItem("atTodoItems", JSON.stringify(items));
+  localStorage.setItem("atDashboardTodoItems", JSON.stringify(items));
 }
 
 function addTodoItem() {
@@ -240,6 +240,11 @@ function addTodoItem() {
   saveTodoItems(items);
   input.value = "";
   renderTodoList();
+}
+
+function focusTodoInput() {
+  const input = $("todoInput");
+  if (input) input.focus();
 }
 
 function toggleTodoItem(id) {
@@ -329,27 +334,36 @@ function renderUpcomingTasks() {
 
   const visibleTasks = tasks.filter(task => task.status !== "Done" && matchesTask(task));
   if (tasks.length === 0) {
-    container.innerHTML = `<div class="empty-state">No tasks yet - add some in the Tasks tab.</div>`;
+    container.innerHTML = `<div class="empty-state">No tasks yet. Add some in the Tasks tab.</div>`;
     return;
   }
 
   if (visibleTasks.length === 0) {
-    container.innerHTML = `<div class="empty-state">No upcoming tasks match your search.</div>`;
+    container.innerHTML = `<div class="empty-state">You are all caught up. No upcoming tasks match your filters.</div>`;
     return;
   }
 
-  const upcoming = sortTasksForView(visibleTasks).slice(0, 6);
+  const upcoming = sortTasksForView(visibleTasks).slice(0, 3);
   container.innerHTML = upcoming.map(task => {
     const days = getDaysLeft(task);
-    const isDone = task.status === "Done";
-    const cls = isDone ? "done" : days < 0 ? "overdue" : days <= 1 ? "urgent" : days <= 3 ? "high" : days <= 7 ? "medium" : "low";
+    const due = getTaskDate(task);
+    const theme = subjectTheme(task.subjectName);
+    const priorityClass = days < 0 || days <= 1 ? "high" : days <= 7 ? "medium" : "low";
+    const priorityText = days < 0 || days <= 1 ? "High" : days <= 7 ? "Medium" : "Low";
     return `
-      <div class="deadline-card ${cls}">
-        <div class="dc-subject" style="color:${subjectTheme(task.subjectName).color};">${escapeHtml(task.subjectName || "General")}</div>
-        <div class="dc-desc">${escapeHtml(task.description)}</div>
-        <div class="dc-days">${isDone ? "Completed" : formatDaysLabel(days)}</div>
-        ${taskLinkMarkup(task, "dc-link")}
-      </div>
+      <article class="deadline-mini-item ${priorityClass}" style="${subjectThemeStyle(theme)}">
+        <div class="deadline-mini-date">
+          <span>${escapeHtml(due.toLocaleDateString(undefined, { month: "short" }))}</span>
+          <strong>${String(due.getDate()).padStart(2, "0")}</strong>
+        </div>
+        <div class="deadline-mini-body">
+          <strong>${escapeHtml(task.description)}</strong>
+          <span>${escapeHtml(task.subjectName || "General")}</span>
+          <p>${formatDaysLabel(days)}</p>
+          <em>${priorityText}</em>
+          ${taskLinkMarkup(task, "dc-link")}
+        </div>
+      </article>
     `;
   }).join("");
 }
@@ -378,11 +392,13 @@ function renderCalendarMarkup() {
 
   for (let day = 1; day <= daysInMonth; day++) {
     const dayTasks = getTasksForDate(year, month, day);
-    const hasDeadlines = dayTasks.length > 0;
+    const dayEvents = getEventsForDate(year, month, day);
+    const itemCount = dayTasks.length + dayEvents.length;
+    const hasDeadlines = itemCount > 0;
     cells.push(`
-      <div class="calendar-cell ${hasDeadlines ? "has-deadlines" : ""}" onclick="openDeadlineModal(${year}, ${month}, ${day})" title="View deadlines for this date">
-        <div class="calendar-day">${day}${hasDeadlines ? `<span class="calendar-badge">${dayTasks.length}</span>` : ""}</div>
-        ${calendarDeadlineMarkup(dayTasks)}
+      <div class="calendar-cell ${hasDeadlines ? "has-deadlines" : ""}" onclick="openDeadlineModal(${year}, ${month}, ${day})" title="View calendar items for this date">
+        <div class="calendar-day">${day}${hasDeadlines ? `<span class="calendar-badge">${itemCount}</span>` : ""}</div>
+        ${calendarDeadlineMarkup(dayTasks, dayEvents)}
       </div>
     `);
   }
@@ -426,7 +442,7 @@ function renderDashboardAbsences() {
   }).join("");
 }
 
-function renderSchedule() {
+function renderLegacyScheduleBoard() {
   const container = $("scheduleBoard");
   if (!container) return;
 

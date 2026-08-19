@@ -92,17 +92,25 @@
   </div>
 </div>
 
-<!-- Top greeting area with the student's name. -->
+<!-- Top greeting area with search, theme controls, and the student's name. -->
 <div class="portal-topbar">
   <div>
-    <div class="hello" id="studentGreeting">Hello, student</div>
-    <div class="today" id="themeTitle">Jujutsu Kaisen Dashboard</div>
+    <div class="hello" id="studentGreeting">Good morning, student</div>
+    <div class="today" id="themeTitle">You are doing amazing today.</div>
+    <div class="topbar-subtitle">Here is your academic overview for today.</div>
   </div>
   <div class="topbar-actions">
+    <label class="search-pill" for="globalSearch">
+      <input id="globalSearch" type="search" placeholder="Search anything..." aria-label="Search subjects and tasks"/>
+    </label>
+    <button class="topbar-icon-btn" type="button" title="Deadline reminders" onclick="enableDeadlineReminders()" aria-label="Enable deadline reminders">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 7h18s-3 0-3-7"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>
+      <span id="topbarUrgentBadge" class="notification-badge hide">0</span>
+    </button>
     <div class="theme-switcher">
       <label for="themeSelect">Design</label>
       <select id="themeSelect" onchange="setDesignTheme(this.value)" aria-label="Choose dashboard design">
-        <option value="standard">Clean Light</option>
+        <option value="standard">Clean Green</option>
         <option value="demonslayer">Demon Slayer</option>
         <option value="jujutsu">Jujutsu Kaisen</option>
         <option value="royalblue">Royal Blue (Luxury Mode)</option>
@@ -115,8 +123,7 @@
     <div class="profile-pill">
       <div id="studentAvatar" class="avatar">S</div>
       <div>
-        <strong>Academic Tracker</strong>
-        <!-- The user can type their name here. -->
+        <strong>Student</strong>
         <input id="studentNameInput" class="student-name-input" type="text" value="" placeholder="Your name" aria-label="Student name"/>
       </div>
     </div>
@@ -127,130 +134,174 @@
 <!-- Dashboard page: this is the first page shown. -->
 <div id="tab-dashboard" class="tab-content active">
   <div class="dashboard-shell">
-    <div class="finance-grid">
-      <div class="finance-card">
-        <div class="finance-icon" aria-hidden="true">
-          <svg viewBox="0 0 24 24"><path d="M4 19.5V5.75A2.75 2.75 0 0 1 6.75 3H20v15H6.75A2.75 2.75 0 0 0 4 20.75"/><path d="M8 7h8"/></svg>
-        </div>
-        <div class="hstat-val" id="dash-subjects">0</div>
-        <div class="hstat-lbl">Enrolled Subjects</div>
-      </div>
-      <div class="finance-card featured">
-        <div class="finance-icon" aria-hidden="true">
-          <svg viewBox="0 0 24 24"><path d="M9 6h11"/><path d="M9 12h11"/><path d="M9 18h11"/><path d="m4 6 1 1 2-2"/><path d="m4 12 1 1 2-2"/><path d="m4 18 1 1 2-2"/></svg>
-        </div>
-        <div class="hstat-val" id="dash-tasks">0</div>
-        <div class="hstat-lbl">Total Tasks</div>
-      </div>
-      <div class="finance-card">
-        <div class="finance-icon" aria-hidden="true">
-          <svg viewBox="0 0 24 24"><path d="M12 3 3 8l9 5 9-5-9-5Z"/><path d="M7 10.5V15c0 1.5 2.2 3 5 3s5-1.5 5-3v-4.5"/><path d="M21 8v7"/></svg>
-        </div>
-        <div class="hstat-val" id="dash-avg">-</div>
-        <div class="hstat-lbl">Current GWA</div>
-      </div>
-      <div class="finance-card">
-        <div class="finance-icon" aria-hidden="true">
-          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v6"/><path d="M12 17h.01"/></svg>
-        </div>
-        <div class="hstat-val" id="dash-urgent">0</div>
-        <div class="hstat-lbl">Urgent</div>
-      </div>
-      <div class="finance-card streak-card">
-        <div class="finance-icon" aria-hidden="true">
-          <svg viewBox="0 0 24 24"><path d="M12 21c4.2 0 7-2.6 7-6.4 0-2.7-1.5-4.8-3.7-6.6.1 2-1 3.3-2.4 4.1.2-3.9-1.5-6.4-4.9-8.1.2 3.2-2.9 5.2-2.9 9 0 4.8 3.8 8 6.9 8Z"/><path d="M12 21c-1.7-1.2-2.5-2.8-2.1-4.6.3-1.2 1.1-2.1 2.1-2.8.1 1.3.8 2.2 1.8 2.8.6 1.7-.1 3.4-1.8 4.6Z"/></svg>
-        </div>
-        <div class="hstat-val" id="dash-streak">0</div>
-        <div class="hstat-lbl" id="dash-streak-label">No study streak yet</div>
-      </div>
-    </div>
-
     <div class="dashboard-main-grid">
-      <div class="dashboard-left">
-        <div class="section-row">
-          <div class="section-title">Progress Overview</div>
-          <span id="dashProgressText" class="section-action">0% complete</span>
-        </div>
-        <div class="progress-panel">
-          <div class="progress-ring" id="dashProgressRing" style="--progress:0%;">
-            <span id="dashProgressValue">0%</span>
-          </div>
-          <div class="chart-card">
-            <div class="mini-title">Task Status</div>
-            <div id="dashboardBarChart" class="bar-chart"></div>
-          </div>
-          <div class="chart-card">
-            <div class="mini-title">Current Standing</div>
-            <div id="dashboardGradeChart" class="standing-list"></div>
-          </div>
-        </div>
+      <main class="dashboard-left">
+        <section class="finance-grid dashboard-stat-strip" id="dashboardStats" aria-label="Academic statistics">
+          <article class="finance-card">
+            <div class="finance-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 19.5V5.75A2.75 2.75 0 0 1 6.75 3H20v15H6.75A2.75 2.75 0 0 0 4 20.75"/><path d="M8 7h8"/></svg></div>
+            <div class="hstat-val" id="dash-subjects">0</div>
+            <div class="hstat-lbl">Enrolled Subjects</div>
+            <div class="hstat-note">Current semester</div>
+          </article>
+          <article class="finance-card">
+            <div class="finance-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M9 6h11"/><path d="M9 12h11"/><path d="M9 18h11"/><path d="m4 6 1 1 2-2"/><path d="m4 12 1 1 2-2"/><path d="m4 18 1 1 2-2"/></svg></div>
+            <div class="hstat-val" id="dash-tasks">0</div>
+            <div class="hstat-lbl">Total Tasks</div>
+            <div class="hstat-note" id="dashTaskTrend">Synced with tasks</div>
+          </article>
+          <article class="finance-card">
+            <div class="finance-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3 3 8l9 5 9-5-9-5Z"/><path d="M7 10.5V15c0 1.5 2.2 3 5 3s5-1.5 5-3v-4.5"/><path d="M21 8v7"/></svg></div>
+            <div class="hstat-val" id="dash-avg">-</div>
+            <div class="hstat-lbl">Current GWA</div>
+            <div class="hstat-note" id="dashGwaNote">No grades yet</div>
+          </article>
+          <article class="finance-card">
+            <div class="finance-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m13 2-8 13h7l-1 7 8-13h-7l1-7Z"/></svg></div>
+            <div class="hstat-val" id="dash-urgent">0</div>
+            <div class="hstat-lbl">Urgent Tasks</div>
+            <div class="hstat-note" id="dashUrgentNote">All clear</div>
+          </article>
+          <article class="finance-card">
+            <div class="finance-icon warm" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 21c4.2 0 7-2.6 7-6.4 0-2.7-1.5-4.8-3.7-6.6.1 2-1 3.3-2.4 4.1.2-3.9-1.5-6.4-4.9-8.1.2 3.2-2.9 5.2-2.9 9 0 4.8 3.8 8 6.9 8Z"/><path d="M12 21c-1.7-1.2-2.5-2.8-2.1-4.6.3-1.2 1.1-2.1 2.1-2.8.1 1.3.8 2.2 1.8 2.8.6 1.7-.1 3.4-1.8 4.6Z"/></svg></div>
+            <div class="hstat-val" id="dash-streak">0</div>
+            <div class="hstat-lbl">Day Streak</div>
+            <div class="hstat-note" id="dash-streak-note">Keep it up</div>
+          </article>
+        </section>
 
-        <div class="dashboard-action-row">
-          <div class="dashboard-deadline-panel">
-            <div class="section-row">
-              <div class="section-title">Upcoming Deadlines</div>
-              <span id="dueSoonIndicator" class="section-action due-soon-indicator">Nothing due in the next 3 days</span>
-            </div>
-            <div id="upcomingTasks" class="deadline-strip dashboard-deadlines">
-              <div class="empty-state">No tasks yet - add some in the Tasks tab.</div>
-            </div>
-          </div>
-
-          <div class="card todo-card">
-            <div class="card-head">
-              <div class="card-icon ci-gray">TODO</div>
-              <div>
-                <div class="card-title">To-Do List</div>
-                <div class="card-sub">Quick reminders for today</div>
+        <section class="progress-activity-panel">
+          <div class="dashboard-card progress-column">
+            <div class="section-title">Overall Progress</div>
+            <div class="progress-content">
+              <div class="progress-ring" id="dashProgressRing" style="--progress:0%; --progress-sweep:4%;">
+                <span id="dashProgressRingValue">0%</span>
+              </div>
+              <div class="progress-breakdown">
+                <h3 id="dashProgressValue">0%</h3>
+                <p id="dashProgressText">No tasks yet</p>
+                <div id="dashboardBarChart" class="bar-chart"></div>
               </div>
             </div>
-            <div class="todo-input-row">
-              <input id="todoInput" type="text" placeholder="Add a quick to-do"/>
-              <button class="btn btn-primary btn-sm" onclick="addTodoItem()">Add</button>
-            </div>
-            <div id="todoList" class="todo-list"></div>
+            <div class="progress-encourage" id="dashProgressEncourage">Build your task list to see academic progress.</div>
           </div>
-        </div>
+          <div class="dashboard-card activity-column">
+            <div class="section-row">
+              <div>
+                <div class="section-title">Study Hours This Week</div>
+                <div class="section-caption">Timer sessions from the last 7 days</div>
+              </div>
+              <span id="dashWeeklyTotal" class="section-action">0m</span>
+            </div>
+            <div id="dashboardWeeklyActivity" class="weekly-activity-chart"></div>
+            <div class="weekly-summary-grid">
+              <article class="weekly-summary-card">
+                <span class="weekly-summary-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24"><path d="M12 6v6l4 2"/><circle cx="12" cy="12" r="9"/></svg>
+                </span>
+                <div>
+                  <span>Total Study Time</span>
+                  <strong id="dashWeeklyTotalCard">0m</strong>
+                </div>
+              </article>
+              <article class="weekly-summary-card">
+                <span class="weekly-summary-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24"><path d="m4 17 6-6 4 4 6-8"/><path d="M14 7h6v6"/></svg>
+                </span>
+                <div>
+                  <span>vs Last Week</span>
+                  <strong id="dashWeeklyCompare">0%</strong>
+                </div>
+              </article>
+            </div>
+          </div>
+        </section>
 
-        <div class="section-row">
-          <div class="section-title">Subject Overview</div>
-          <span class="section-action">Study hours</span>
-        </div>
-        <div id="subjectCards" class="subject-card-grid compact-subjects">
-          <div class="empty-state">No subjects yet - add some in the Subjects tab.</div>
-        </div>
-      </div>
+        <section class="dashboard-bottom-grid">
+          <div class="dashboard-card deadlines-preview-card">
+            <div class="section-row">
+              <div>
+                <div class="section-title">Upcoming Deadlines</div>
+                <div id="dueSoonIndicator" class="section-caption due-soon-indicator">Nothing due in the next 3 days</div>
+              </div>
+              <button class="link-button" type="button" onclick="showTab('tasks')">View all</button>
+            </div>
+            <div id="upcomingTasks" class="deadline-timeline">
+              <div class="empty-state">No tasks yet. Add some in the Tasks tab.</div>
+            </div>
+          </div>
+
+          <div class="dashboard-card analytics-preview-card">
+            <div class="section-row">
+              <div class="section-title">Insights</div>
+              <button class="link-button" type="button" onclick="showTab('analytics')">This week</button>
+            </div>
+            <div id="dashboardInsights" class="dashboard-insights insight-card-grid"></div>
+          </div>
+        </section>
+
+        <section class="dashboard-card subjects-preview-card">
+          <div class="section-row">
+            <div>
+              <div class="section-title">My Subjects</div>
+              <div class="section-caption">Study targets, grades, and task completion</div>
+            </div>
+            <button class="link-button" type="button" onclick="showTab('subjects')">View all subjects</button>
+          </div>
+          <div id="subjectCards" class="subject-card-grid compact-subjects">
+            <div class="empty-state">No subjects yet. Add your first subject in the Subjects tab.</div>
+          </div>
+        </section>
+      </main>
 
       <aside class="dashboard-right">
-        <div class="section-row">
-          <div class="section-title">Calendar</div>
-          <span class="section-action">This month</span>
-        </div>
-        <div id="dashboardCalendar" class="calendar-grid dashboard-calendar"></div>
-
-        <div class="section-row">
-          <div class="section-title">Absence Tracker</div>
-          <span class="section-action">Per subject</span>
-        </div>
-        <div class="absence-note">Default cap is 6 absences per subject. Check your school's policy if it uses a different limit.</div>
-        <div id="dashboardAbsences" class="absence-list"></div>
-
-        <div class="card data-card">
-          <div class="card-head">
-            <div class="card-icon ci-blue">DATA</div>
+        <section class="dashboard-card calendar-preview-card">
+          <div class="section-row">
             <div>
-              <div class="card-title">Data Backup</div>
-              <div class="card-sub">Export, import and deadline reminders</div>
+              <div class="section-title">Calendar</div>
+              <div class="section-caption">Tasks and events this month</div>
+            </div>
+            <button class="link-button" type="button" onclick="showTab('calendar')">Open</button>
+          </div>
+          <div id="dashboardCalendar" class="calendar-grid dashboard-calendar"></div>
+        </section>
+
+        <section class="dashboard-card streak-widget">
+          <div class="section-row">
+            <div>
+              <div class="section-title">Study Streak</div>
+              <div id="dash-streak-label-side" class="section-caption">No study streak yet</div>
+            </div>
+            <strong><span id="dash-streak-side">0</span></strong>
+          </div>
+          <div id="studyStreakDots" class="streak-dots"></div>
+        </section>
+
+        <section class="dashboard-card focus-timer-card">
+          <div class="section-row">
+            <div>
+              <div class="section-title">Focus Timer</div>
+              <div class="section-caption">Pomodoro</div>
             </div>
           </div>
-          <div class="backup-actions">
-            <button class="btn btn-primary btn-sm" onclick="exportBackup()">Export JSON</button>
-            <button class="btn btn-ghost btn-sm" onclick="document.getElementById('backupImportFile').click()">Import JSON</button>
-            <button class="btn btn-ghost btn-sm" onclick="enableDeadlineReminders()">Enable Reminders</button>
-            <input id="backupImportFile" class="hide" type="file" accept="application/json,.json" onchange="importBackupFile(this.files[0]); this.value=''"/>
+          <div class="focus-timer-display">25:00</div>
+          <div class="section-caption">Ready to focus?</div>
+          <button class="quick-action-btn primary" type="button" onclick="showTab('studytimer')">Start</button>
+        </section>
+
+        <section class="dashboard-card todo-card">
+          <div class="section-row">
+            <div class="section-title">To-Do List</div>
+            <button class="link-button" type="button" onclick="focusTodoInput()">Add To-Do</button>
           </div>
-          <div id="reminderStatus" class="hint">Reminders are off until you enable browser notifications.</div>
-        </div>
+          <div class="todo-input-row compact-todo-input">
+            <input id="todoInput" type="text" placeholder="Add a quick to-do"/>
+            <button class="btn btn-primary btn-sm" onclick="addTodoItem()">Add</button>
+          </div>
+          <div id="todoList" class="todo-list dashboard-todo-list"></div>
+          <div class="todo-card-footer">
+            <button class="link-button" type="button" onclick="showTab('tasks')">View all tasks</button>
+          </div>
+        </section>
       </aside>
     </div>
   </div>
@@ -626,17 +677,16 @@
           <input id="scheduleCustomTitle" type="text" placeholder="e.g. Lunch, Wellness Break, Performance Task"/>
         </div>
         <div class="field">
-          <label>Day</label>
-          <select id="scheduleDay">
-            <option value="">No schedule</option>
-            <option value="Monday">Monday</option>
-            <option value="Tuesday">Tuesday</option>
-            <option value="Wednesday">Wednesday</option>
-            <option value="Thursday">Thursday</option>
-            <option value="Friday">Friday</option>
-            <option value="Saturday">Saturday</option>
-            <option value="Sunday">Sunday</option>
-          </select>
+          <label>Days</label>
+          <div id="scheduleDay" class="schedule-day-picker" role="group" aria-label="Schedule days">
+            <label><input type="checkbox" value="Monday"/>Mon</label>
+            <label><input type="checkbox" value="Tuesday"/>Tue</label>
+            <label><input type="checkbox" value="Wednesday"/>Wed</label>
+            <label><input type="checkbox" value="Thursday"/>Thu</label>
+            <label><input type="checkbox" value="Friday"/>Fri</label>
+            <label><input type="checkbox" value="Saturday"/>Sat</label>
+            <label><input type="checkbox" value="Sunday"/>Sun</label>
+          </div>
         </div>
         <div class="weight-row">
           <div class="field">
@@ -652,7 +702,7 @@
           <label>Room</label>
           <input id="scheduleLocation" type="text" placeholder="e.g. ICS Lab 1"/>
         </div>
-        <p class="hint" style="margin-bottom:10px;"><strong>Tip:</strong> To add the same class on multiple days, choose one day and save it. Then choose the next day and save again. Extra class days and personal blocks are saved on this browser.</p>
+        <p class="hint" style="margin-bottom:10px;"><strong>Tip:</strong> Select every day this class or task repeats. Extra class days and personal blocks are saved on this browser.</p>
         <button class="btn btn-primary" onclick="saveScheduleFromTab()">Add Schedule Slot</button>
       </div>
       <div id="scheduleSummary" class="schedule-summary card"></div>
@@ -780,4 +830,3 @@
 <script src="js/study-timer.js"></script>
 </body>
 </html>
-

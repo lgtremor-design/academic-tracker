@@ -460,37 +460,81 @@ function renderSubjectCards() {
 
   if (subjects.length === 0) {
     container.innerHTML =
-      `<div class="empty-state">No subjects yet - add some in the Subjects tab.</div>`;
+      `<div class="empty-state">No subjects yet. Add your first subject in the Subjects tab.</div>`;
     return;
   }
 
-  const rows = getStudyHourRows({ includeZero: true });
-  const maxHours = Math.max(1, ...rows.map(row => row.hours));
-  const hasStudyTime = rows.some(row => row.hours > 0);
+  const rows = subjects.slice(0, 6).map(subject => {
+    const linkedTasks = subjectTasks(subject.name);
+    const done = linkedTasks.filter(task => task.status === "Done").length;
+    const grade = Math.min(100, Math.max(0, safeNumber(subject.weightedGrade ?? subject.average ?? 0)));
+    const target = getStudyTargetHours(subject);
+    const studied = getTrackedStudyHours(subject);
+    return {
+      subject,
+      linkedTasks,
+      done,
+      grade,
+      target,
+      studied,
+      theme: subjectTheme(subject.name)
+    };
+  }).sort((a, b) => {
+    const aOpen = a.linkedTasks.length - a.done;
+    const bOpen = b.linkedTasks.length - b.done;
+    return bOpen - aOpen || b.studied - a.studied || a.subject.name.localeCompare(b.subject.name);
+  });
 
   container.innerHTML = rows.map(row => {
-    const width = row.hours > 0 ? Math.max(4, Math.min(100, (row.hours / maxHours) * 100)) : 0;
-    const targetPct = row.target > 0 ? Math.min(100, (row.hours / row.target) * 100) : 0;
-    const note = row.target > 0
-      ? `${formatHours(Math.max(0, row.target - row.hours))} left of ${formatHours(row.target)} target`
-      : hasStudyTime
-      ? "No weekly target set"
-      : "No timer sessions yet";
+    const taskPct = row.linkedTasks.length ? Math.round((row.done / row.linkedTasks.length) * 100) : 0;
+    const studyPct = row.target > 0 ? Math.min(100, (row.studied / row.target) * 100) : 0;
+    const note = row.subject.notes || "No instructor or notes added";
+    const status = row.linkedTasks.length
+      ? `${row.done}/${row.linkedTasks.length} tasks completed`
+      : "No linked tasks yet";
 
     return `
-      <div class="subject-card study-hour-card" style="${subjectThemeStyle(row.theme)}">
+      <article class="subject-card subject-progress-card" style="${subjectThemeStyle(row.theme)}">
         <div class="sc-topline">
-          <div class="sc-name" style="color:${row.theme.color};">${escapeHtml(row.name)}</div>
-          <div class="sc-hours">${formatHours(row.hours)}</div>
+          <div class="sc-icon" aria-hidden="true">${subjectIcon(row.subject.name)}</div>
+          <div>
+            <div class="sc-name" style="color:${row.theme.color};">${escapeHtml(row.subject.name)}</div>
+            <div class="sc-notes">${escapeHtml(note)}</div>
+          </div>
+          <div class="sc-hours">${format2(row.grade)}%</div>
         </div>
-        <div class="sc-notes">${escapeHtml(note)}</div>
-        <div class="sc-bar-wrap" aria-label="${escapeAttr(row.name)} study hours">
-          <div class="sc-bar" style="width:${width.toFixed(1)}%; background:linear-gradient(90deg, var(--subject-color), var(--subject-color-2));"></div>
+        <div class="subject-progress-meta">
+          <span>${escapeHtml(status)}</span>
+          <strong>${formatStudyProgress(row.subject)}</strong>
         </div>
-        ${row.target > 0 ? `<div class="sc-target-line"><span style="width:${targetPct.toFixed(1)}%;"></span></div>` : ""}
-      </div>
+        <div class="sc-bar-wrap" aria-label="${escapeAttr(row.subject.name)} grade progress">
+          <div class="sc-bar" style="width:${row.grade.toFixed(1)}%; background:linear-gradient(90deg, var(--subject-color), var(--subject-color-2));"></div>
+        </div>
+        <div class="sc-target-line"><span style="width:${row.linkedTasks.length ? taskPct : studyPct}%;"></span></div>
+      </article>
     `;
-  }).join("");
+  }).join("") + (subjects.length > rows.length ? `
+      <button class="subject-card subject-more-card" type="button" onclick="showTab('subjects')">
+        <span>${subjects.length - rows.length} more subject${subjects.length - rows.length === 1 ? "" : "s"}</span>
+        <strong>View all</strong>
+      </button>
+    ` : "");
+}
+
+function subjectIcon(name = "") {
+  const text = String(name).toLowerCase();
+  const atom = `<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="2.2"/><ellipse cx="12" cy="12" rx="9" ry="3.8"/><ellipse cx="12" cy="12" rx="9" ry="3.8" transform="rotate(60 12 12)"/><ellipse cx="12" cy="12" rx="9" ry="3.8" transform="rotate(120 12 12)"/></svg>`;
+  const calculator = `<svg viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M8 7h8M8 11h2M12 11h2M16 11h.01M8 15h2M12 15h2M16 15h.01"/></svg>`;
+  const chip = `<svg viewBox="0 0 24 24"><rect x="7" y="7" width="10" height="10" rx="1.5"/><path d="M4 9h3M4 15h3M17 9h3M17 15h3M9 4v3M15 4v3M9 17v3M15 17v3"/></svg>`;
+  const palette = `<svg viewBox="0 0 24 24"><path d="M12 3a9 9 0 0 0 0 18h1.2a1.8 1.8 0 0 0 1.2-3.1 1.8 1.8 0 0 1 1.2-3.1H17a4 4 0 0 0 4-4C21 6.5 17 3 12 3Z"/><circle cx="7.8" cy="10" r="1"/><circle cx="10.5" cy="7.5" r="1"/><circle cx="14" cy="7.8" r="1"/></svg>`;
+  const globe = `<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.2 2.5 3.2 5.5 3.2 9s-1 6.5-3.2 9M12 3C9.8 5.5 8.8 8.5 8.8 12s1 6.5 3.2 9"/></svg>`;
+  const book = `<svg viewBox="0 0 24 24"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v16H6.5A2.5 2.5 0 0 0 4 21.5z"/><path d="M4 5.5v16M8 7h8M8 11h8"/></svg>`;
+  if (/(math|calc|algebra|stat)/.test(text)) return calculator;
+  if (/(phys|chem|bio|sci)/.test(text)) return atom;
+  if (/(ee|eng|comp|cmsc|cs|tech)/.test(text)) return chip;
+  if (/(art|design|music)/.test(text)) return palette;
+  if (/(sts|ethic|soc|hist|world)/.test(text)) return globe;
+  return book;
 }
 
 
